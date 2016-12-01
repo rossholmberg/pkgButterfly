@@ -1,0 +1,28 @@
+Package: butterfly
+Type: Package
+Title: Functions to calculate relevant local oceanographic variables based on Afan et. al.
+Version: 0.0.1.0
+Author: Ross Holmberg
+Maintainer: Ross Holmberg <ross@holmberg.com.au>
+Description: Uses currents data to calculate an appropriate area of influence for surface variables, then applies it to give a local metric.
+Depends: R (>= 3.2.0)
+License: GPL-3 + file LICENSE
+URL: https://gitlab.com/rossholmberg/butterfly
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 5.0.1
+Imports: data.table,
+         Rcpp,
+         parallel,
+         doParallel,
+         plyr,
+         magrittr
+Suggests: dplyr,
+          ggplot2,
+          stats,
+          shiny,
+          shinyjs,
+          readxl,
+          utils,
+          DT
+LinkingTo: Rcpp
