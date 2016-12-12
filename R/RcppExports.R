@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 idDub <- function(i, inputlat, inputlon, inputdata, outputlat, outputlon, landmask) {
-    .Call('butterfly_idDub', PACKAGE = 'butterfly', i, inputlat, inputlon, inputdata, outputlat, outputlon, landmask)
+    .Call('pkgButterfly_idDub', PACKAGE = 'pkgButterfly', i, inputlat, inputlon, inputdata, outputlat, outputlon, landmask)
 }
 

@@ -23,19 +23,22 @@ A temporary folder will be created within this specified folder, and deleted whe
 
 \item{cell.size}{Resolution (in degrees) to create for output. Note data will be interpolated from input.}
 
-\item{split.quant}{The point at which to split for areas of influence (0.75 takes the TOP 25% influence), as per Afán et al 2015}
+\item{split.quant}{The point at which to split for areas of influence (0.75 takes the TOP 25\% influence), as per Afán et al 2015}
 
 \item{csrun.link}{complete link to `csrun.py` file, included as part of the CircuitScape package.}
 
 \item{parallel}{FALSE will not use multi-threading, TRUE will guess at an optimal number of cores based on processor,
 integer value specifies a number of cores to use when multi-threading tasks.}
 }
+\value{
+data.frame
+}
 \description{
 This function takes a datafile of ocean currents, and uses it to process a dynamic area of influence.
 The process used is as per Afán et al 2015
 }
-\keyword{chlorophyll,}
+\keyword{chlorophyll}
 \keyword{circuitscape}
-\keyword{currents,}
-\keyword{ocean,}
+\keyword{currents}
+\keyword{ocean}
 

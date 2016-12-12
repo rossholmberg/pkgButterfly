@@ -2,12 +2,11 @@
 #' Based on Afán et al. 2015
 #'
 #'
-#' @param water.direction A numeric array expressing water current directions.
-#' @param water.speed An array with dimensions matching that of water.direction
-#' @param angle.sink A matrix of angles calculated using angleSink.
+#' @param POI central reference point (eg: colony location)
+#' @param lat latitudes to compare (dimensions must match lon)
+#' @param lon longitudes to compare (dimensions must match lat)
 #' @keywords cost currents sink
-#' @import grDevices
-#' @import plyr
+#' @import geosphere
 #' @export
 #' @return A numeric array, with dimensions matching water.direction and water.speed
 

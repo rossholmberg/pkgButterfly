@@ -8,11 +8,11 @@ Based on Afán et al. 2015}
 angleSink(POI = c(145.2, -38.8), lat, lon)
 }
 \arguments{
-\item{water.direction}{A numeric array expressing water current directions.}
+\item{POI}{central reference point (eg: colony location)}
 
-\item{water.speed}{An array with dimensions matching that of water.direction}
+\item{lat}{latitudes to compare (dimensions must match lon)}
 
-\item{angle.sink}{A matrix of angles calculated using angleSink.}
+\item{lon}{longitudes to compare (dimensions must match lat)}
 }
 \value{
 A numeric array, with dimensions matching water.direction and water.speed

@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // idDub
 NumericVector idDub(int i, NumericVector inputlat, NumericVector inputlon, NumericMatrix inputdata, NumericVector outputlat, NumericVector outputlon, NumericVector landmask);
-RcppExport SEXP butterfly_idDub(SEXP iSEXP, SEXP inputlatSEXP, SEXP inputlonSEXP, SEXP inputdataSEXP, SEXP outputlatSEXP, SEXP outputlonSEXP, SEXP landmaskSEXP) {
+RcppExport SEXP pkgButterfly_idDub(SEXP iSEXP, SEXP inputlatSEXP, SEXP inputlonSEXP, SEXP inputdataSEXP, SEXP outputlatSEXP, SEXP outputlonSEXP, SEXP landmaskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

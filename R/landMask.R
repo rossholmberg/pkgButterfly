@@ -9,7 +9,6 @@
 #' @import maps
 #' @import sp
 #' @import plyr
-#' @import pkgLoad
 #' @import magrittr
 #' @import doParallel
 #' @import foreach

@@ -10,6 +10,9 @@
 #' @param return.data.vector TRUE/FALSE should the output be returned as a vector?
 #'
 #' @keywords conductance, ocean currents
+#' @import data.table
+#' @import stats
+#' @import readr
 #'
 #' @export
 #'

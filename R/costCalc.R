@@ -10,26 +10,19 @@
 #' @param POI c( [longitude], [latitude] ) marking the central point (eg: colony)
 #' @param foraging.distance A distance in km to consider as the area of interest from the POI.
 #' @param cell.size Resolution (in degrees) to create for output. Note data will be interpolated from input.
-#' @param split.quant The point at which to split for areas of influence (0.75 takes the TOP 25% influence), as per Afán et al 2015
+#' @param split.quant The point at which to split for areas of influence (0.75 takes the TOP 25\% influence), as per Afán et al 2015
 #' @param csrun.link complete link to `csrun.py` file, included as part of the CircuitScape package.
 #' @param parallel FALSE will not use multi-threading, TRUE will guess at an optimal number of cores based on processor,
 #' integer value specifies a number of cores to use when multi-threading tasks.
 #'
-#' @keywords currents, chlorophyll, ocean, circuitscape
+#' @keywords currents chlorophyll ocean circuitscape
 #'
 #' @export
-#'
-#' @import navto
-#' @import coresToUse
+#' @return data.frame
 #' @import data.table
 #' @import doParallel
 #' @import foreach
 #' @import plyr
-#' @import convertCurrents
-#' @import createGrid
-#' @import angleSink
-#' @import costFun
-#' @import landMask
 #' @import magrittr
 #' @import ncdf4
 #'
