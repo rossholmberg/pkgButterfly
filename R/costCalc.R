@@ -26,6 +26,7 @@
 #' @import plyr
 #' @import magrittr
 #' @import ncdf4
+#' @import doMC
 #'
 
 
@@ -43,8 +44,8 @@ costCalc <- function( currents.file,
 
   print( "Running pre-flight checks and setup." )
 
-  # create a dummy variable to keep the software happy
-  . <- NULL
+  # create some dummy variables to keep the software happy
+  . <- landmask <- mask <- distance.from.poi <- NULL
 
   # set up a temporary folder for holding files
   navto( output.folder )
@@ -345,7 +346,7 @@ costCalc <- function( currents.file,
   # extract used dates from conductance file names
   dates <- conductance.files %>%
     strsplit( split = "/" ) %>%
-    sapply( tail, 1L ) %>%
+    sapply( utils::tail, 1L ) %>%
     strsplit( split = "_" ) %>%
     sapply( "[", 2L ) %>%
     trimws() %>%

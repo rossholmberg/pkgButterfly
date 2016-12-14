@@ -8,6 +8,7 @@
 #' @param noDataValue value to be used in Ascii file as representing a "no data" point
 #'
 #' @import data.table
+#' @import utils
 #'
 #' @return data.frame
 #'
@@ -16,8 +17,6 @@
 
 
 df2Ascii <- function( lat, lon, data, file, noDataValue = -9999 ) {
-
-  library( data.table )
 
   gridlat <- unique( lat )
   gridlon <- unique( lon )
@@ -50,9 +49,9 @@ df2Ascii <- function( lat, lon, data, file, noDataValue = -9999 ) {
   cat( header, file = file, append = FALSE, sep = "\n" )
 
   # and write the data as appropriate
-  write.table( matrix, file = file, append = TRUE,
-               sep = "\t", eol = "\n",
-               row.names = FALSE, col.names = FALSE
+  utils::write.table( matrix, file = file, append = TRUE,
+                      sep = "\t", eol = "\n",
+                      row.names = FALSE, col.names = FALSE
   )
 
 }

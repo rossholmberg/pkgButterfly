@@ -6,6 +6,7 @@
 #' @param water.speed An array with dimensions matching that of water.direction
 #' @param angle.sink A matrix of angles calculated using angleSink.
 #' @keywords cost wind sink
+#' @importFrom circular rad
 #' @export
 #' @return A numeric array, with dimensions matching water.direction and water.speed
 
@@ -20,7 +21,7 @@ costFun <- function( water.direction, water.speed, angle.sink ) {
 
   betta <- base::mapply(
     FUN = function( x ) {
-      abs( rad( water.direction[,,x] ) - rad( angle.sink ) )
+      abs( circular::rad( water.direction[,,x] ) - circular::rad( angle.sink ) )
     },
     x = seq_along( water.direction[1,1,] ),
     SIMPLIFY = T

@@ -27,7 +27,8 @@ processConductance <-  function( conductance.file,
                                  return.dt = FALSE,
                                  return.data.vector = FALSE ){
 
-  library( data.table )
+
+  lat <- lon <- data.masked <- reclass.data <- NULL
 
   header <- readLines( conductance.file, n = 7 )
   num.cols <- as.integer( gsub( "ncols| ", "", header[ grep( "ncols", header ) ] ) )
