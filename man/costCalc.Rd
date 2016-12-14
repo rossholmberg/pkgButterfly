@@ -14,6 +14,8 @@ costCalc(currents.file, dates.range = NA, buffer.days = 10L, output.folder,
 
 \item{dates.range}{range of dates to subset from input data. If NA, all dates in input file are used.}
 
+\item{buffer.days}{when there are no exactly matching records, how many days to either side should be searched?}
+
 \item{output.folder}{complete link to a folder to use for temporary files during processing.
 A temporary folder will be created within this specified folder, and deleted when computation has completed.}
 

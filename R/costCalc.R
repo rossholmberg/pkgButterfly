@@ -5,6 +5,7 @@
 #'
 #' @param currents.file complete link to .nc data file containing ocean currents data
 #' @param dates.range range of dates to subset from input data. If NA, all dates in input file are used.
+#' @param buffer.days when there are no exactly matching records, how many days to either side should be searched?
 #' @param output.folder complete link to a folder to use for temporary files during processing.
 #' A temporary folder will be created within this specified folder, and deleted when computation has completed.
 #' @param POI c( [longitude], [latitude] ) marking the central point (eg: colony)
