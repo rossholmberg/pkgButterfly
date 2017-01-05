@@ -3,6 +3,7 @@
 export(angleSink)
 export(convertCurrents)
 export(costCalc)
+export(costCalcMaster)
 export(costFun)
 export(createGrid)
 export(df2Ascii)
