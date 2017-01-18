@@ -40,7 +40,9 @@ costCalcMaster <- function( currents.file,
                             csrun.link,
                             parallel ) {
 
-  print( "Running pre-flight checks and setup." )
+  start.time <- as.integer( Sys.time() )
+
+  cat( "Running pre-flight checks and setup.\n" )
 
   # load other packages
   # pkgLoad( c( "ncdf4", "raster", "fields", "plyr", "data.table",
@@ -112,7 +114,7 @@ costCalcMaster <- function( currents.file,
   }
 
   # get the currents data
-  print( "Importing data from currents file." )
+  cat( "Importing data from currents file.\n" )
   aa <- ncdf4::nc_open( currents.file )
 
   # extract the different variables (metadata) from the .nc:
@@ -128,7 +130,7 @@ costCalcMaster <- function( currents.file,
   dates <- ncdf4::ncvar_get( aa, varid = "time" ) %>%
     as.Date( origin = "1979-01-01" )
 
-  print( "Converting currents to appropriate format." )
+  cat( "Converting currents to appropriate format.\n" )
   # retrieve and convert current data
   currents <- convertCurrents( zonal.current = ncdf4::ncvar_get( aa, varid = "ZonalCurrent" ),
                                meridional.current = ncdf4::ncvar_get( aa, varid = "MeridionalCurrent" ) )
@@ -180,7 +182,7 @@ costCalcMaster <- function( currents.file,
 
 
   # build a mask for points falling on land
-  print( "Downloading local area map, and converting to appropriate mask." )
+  cat( "Downloading local area map, and converting to appropriate mask.\n" )
   land.mask <- landMask( lat = grid.df$lat,
                          lon = grid.df$lon,
                          cores = coresToUse
@@ -219,10 +221,8 @@ costCalcMaster <- function( currents.file,
 
   # create the cost rasters via inverse distance weighted interpolation,
   # outputting to ascii files. We are utilising multi-threading here for speed
-  print( "Interpolating grid-wise current data using inverse distance weighting." )
-  print( "PLEASE BE PATIENT. This process may take a long time, depending on data and parameters..." )
-
-
+  cat( "\nInterpolating grid-wise current data using inverse distance weighting.\n" )
+  cat( "PLEASE BE PATIENT. This process may take a long time, depending on data and parameters...\n" )
 
   if( parallel && Sys.info()[['sysname']] != "Windows" ) {
     doMC::registerDoMC( cores = coresToUse )
@@ -231,8 +231,11 @@ costCalcMaster <- function( currents.file,
   } else {
     parallel.forCost <- FALSE
     progress <- "text"
-    print( "Sorry, this process is being passed to C++ for processing, this cannot be multi-threaded under Windows." )
+    cat( "Sorry, this process is being passed to C++ for processing, this cannot be multi-threaded under Windows.\n" )
   }
+
+  cat( paste( "Started IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
+  cat( "\n" )
 
   cost.matrix <- plyr::llply( .data = seq_len( nrow( grid.df ) ),
                               .fun = idDub,
@@ -247,6 +250,8 @@ costCalcMaster <- function( currents.file,
     do.call( what = rbind ) %>%
     as.data.frame()
 
+  cat( paste( "Completed IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
+  cat( "\n" )
 
   rm( df_cost )
 
@@ -263,7 +268,7 @@ costCalcMaster <- function( currents.file,
               noDataValue = noDataValue )
   }
 
-  print( "Interpolation done, moving on..." )
+  cat( "Interpolation done, moving on...\n" )
 
 
 
@@ -315,7 +320,7 @@ costCalcMaster <- function( currents.file,
 
   # now we run circuitscape. Note that this will be run externally in python, rather than R
   # we will utilise multi-threading here too, if requested in the original function call
-  print( "Passing currents data to CircuitScape for processing." )
+  cat( "Passing currents data to CircuitScape for processing.\n" )
 
   suppressMessages(
     plyr::l_ply( .data = seq_along( costs.filelist ),
@@ -347,7 +352,7 @@ costCalcMaster <- function( currents.file,
     as.Date( format = "%Y%m%d" )
 
   # We will first construct the dynamic areas of influence (based on ocean currents) and used to later extract CHL
-  print( "Processing conductance data." )
+  cat( "Processing conductance data.\n" )
   conductance.table <- plyr::llply( .data = conductance.files,
                                     .fun = processConductance,
                                     land.mask = land.mask,
@@ -373,12 +378,28 @@ costCalcMaster <- function( currents.file,
   #                                              land.mask = land.mask )
 
   # now remove the temporary folder we created
-  print( "Removing temporary working directory." )
+  cat( "Removing temporary working directory.\n" )
   setwd( output.folder )
   setwd( ".." )
   unlink( output.folder, recursive = TRUE )
 
-  print( "Done!" )
+  cat( "Done!\n" )
+
+  # print a timing summary
+  process.duration <- as.integer( Sys.time() ) - start.time
+  cat( "castCalcMaster process took " )
+  if( process.duration <= 120 ) {
+    cat( process.duration )
+    cat( " secs." )
+  } else if( process.duration <= 120*60 ) {
+    cat( round( process.duration / 60, 2 ) )
+    cat( " mins." )
+  } else {
+    cat( round( process.duration / 3600, 2 ) )
+    cat( " hours." )
+  }
+  cat( "\n" )
+
   return( conductance.table )
 
 }
