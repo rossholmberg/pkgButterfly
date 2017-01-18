@@ -310,20 +310,6 @@ costCalcMaster <- function( currents.file,
   # we will utilise multi-threading here too, if requested in the original function call
   print( "Passing currents data to CircuitScape for processing." )
 
-  if( parallel ) {
-    cl <- parallel::makeCluster( coresToUse )
-    doParallel::registerDoParallel( cl )
-    paropts <- list(
-      .export = c( "costs.filelist", "csrun.link", "conductanceFiles.folder",
-                   "output.folder", "dates", "runCircuitscape" )
-    )
-    progress <- "none"
-  } else {
-    parallel <- FALSE
-    paropts <- NULL
-    progress <- "text"
-  }
-
   suppressMessages(
     plyr::l_ply( .data = seq_along( costs.filelist ),
                  .fun = runCircuitscape,
@@ -333,15 +319,10 @@ costCalcMaster <- function( currents.file,
                  source.asc.link = paste( output.folder, "source.asc", sep = "/" ),
                  sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
                  dates = dates,
-                 .parallel = parallel,
-                 .paropts = paropts,
-                 .progress = progress
+                 .parallel = FALSE,
+                 .progress = "none"
     )
   )
-
-  if( parallel ) {
-    parallel::stopCluster( cl )
-  }
 
   # list all the files within the temporary directory
   conductance.files <- list.files( path = paste0( output.folder, "/conductance" ),
