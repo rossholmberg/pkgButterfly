@@ -11,6 +11,7 @@
 #' @param outputlat latitudes of output data
 #' @param outputlon longitudes of output data
 #' @param landmask aligned data for masking
+#' @useDynLib pkgButterfly
 #'
 #' @keywords inverse distance weighted average
 #' @export

@@ -20,7 +20,7 @@ chlorophyllCalc <- function( input.file,
                              max.day.diff = 31,
                              exclude.nas = TRUE ) {
 
-  mean.chlorophyll <- NULL
+  mean.chlorophyll <- date <- NULL
 
   data.input <- extractFromNc(
     file = input.file, data.variable = data.variable
@@ -40,6 +40,8 @@ chlorophyllCalc <- function( input.file,
     dates.data <- dates.data[ !is.na( mean.chlorophyll ), ]
   }
 
+  # convert dates to date format before returning to the user
+  dates.data[ , date := as.Date( date ) ]
 
   return( dates.data )
 
