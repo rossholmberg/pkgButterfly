@@ -135,7 +135,7 @@ costCalcMaster <- function( currents.file,
 
   wdir <- currents[["direction"]]
   wspeed <- currents[["speed"]]
-
+  rm( currents )
 
   # for each pixel we now have to calculated the angle with respect LP foraging area
   # first, we have to construct the container for this info. This will be an array with two dimensions: lat and lon
@@ -152,6 +152,7 @@ costCalcMaster <- function( currents.file,
                         water.speed = wspeed,
                         angle.sink = angle_sink )
   # fields::image.plot( cost_sink[,,1] )
+  rm( wdir, wspeed )
 
   # we now have to transform these objects into rasters
   # as long as the grid is not regular, there is no way to produce directly a raster, so we have to make a long way constructing a shape of points and then interpolating
@@ -160,6 +161,8 @@ costCalcMaster <- function( currents.file,
 
   df_cost <- data.frame( apply( cost_sink, 3, as.vector ) )
   names( df_cost ) <- dates
+
+  rm( cost_sink )
 
   # Mask to be used to erase land-masses from raster data
   # land.mask <- createSpatialMap( latRange = latRange,
@@ -210,6 +213,8 @@ costCalcMaster <- function( currents.file,
   }
 
 
+  # convert df_cost to matrix class for passing to c++
+  df_cost <- as.matrix( df_cost )
 
 
   # create the cost rasters via inverse distance weighted interpolation,
@@ -233,7 +238,7 @@ costCalcMaster <- function( currents.file,
                               .fun = idDub,
                               inputlat = input.coords$latit,
                               inputlon = input.coords$longi,
-                              inputdata = as.matrix( df_cost ),
+                              inputdata = df_cost,
                               outputlat = grid.df$lat,
                               outputlon = grid.df$lon,
                               landmask = grid.df$landmask,
@@ -242,6 +247,8 @@ costCalcMaster <- function( currents.file,
     do.call( what = rbind ) %>%
     as.data.frame()
 
+
+  rm( df_cost )
 
   noDataValue = -9999
 
