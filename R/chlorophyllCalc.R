@@ -25,6 +25,7 @@ chlorophyllCalc <- function( input.file,
   data.input <- extractFromNc(
     file = input.file, data.variable = data.variable
   )
+  gc()
 
   dates.data <- data.table::data.table(
     date = names( data.input )[ 3 : ncol( data.input ) ]
@@ -35,6 +36,9 @@ chlorophyllCalc <- function( input.file,
                                                      data.conductance = conductance.data,
                                                      max.day.diff = max.day.diff ),
               by = date ]
+
+  rm( data.input )
+  gc()
 
   if( exclude.nas ) {
     dates.data <- dates.data[ !is.na( mean.chlorophyll ), ]

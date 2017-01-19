@@ -138,6 +138,7 @@ costCalcMaster <- function( currents.file,
   wdir <- currents[["direction"]]
   wspeed <- currents[["speed"]]
   rm( currents )
+  gc()
 
   # for each pixel we now have to calculated the angle with respect LP foraging area
   # first, we have to construct the container for this info. This will be an array with two dimensions: lat and lon
@@ -155,6 +156,7 @@ costCalcMaster <- function( currents.file,
                         angle.sink = angle_sink )
   # fields::image.plot( cost_sink[,,1] )
   rm( wdir, wspeed )
+  gc()
 
   # we now have to transform these objects into rasters
   # as long as the grid is not regular, there is no way to produce directly a raster, so we have to make a long way constructing a shape of points and then interpolating
@@ -165,6 +167,7 @@ costCalcMaster <- function( currents.file,
   names( df_cost ) <- dates
 
   rm( cost_sink )
+  gc()
 
   # Mask to be used to erase land-masses from raster data
   # land.mask <- createSpatialMap( latRange = latRange,
@@ -254,6 +257,7 @@ costCalcMaster <- function( currents.file,
   cat( "\n" )
 
   rm( df_cost )
+  gc()
 
   noDataValue = -9999
 
@@ -366,7 +370,12 @@ costCalcMaster <- function( currents.file,
     data.table::data.table() %>%
     data.table::setnames( as.character( dates ) )
 
-  conductance.table <- cbind( grid.df[ , .( lat, lon ) ], conductance.table )
+  newcolorder <- c( "lat", "lon", names( conductance.table ) )
+
+  conductance.table[ , lat := grid.df[['lat']] ]
+  conductance.table[ , lon := grid.df[['lon']] ]
+
+  setcolorder( conductance.table, newcolorder )
 
   # dynamic.conductance.files <- list.files( path = paste0( conductanceFiles.folder, "/conductance" ),
   #                                          pattern = ".asc",
@@ -384,6 +393,8 @@ costCalcMaster <- function( currents.file,
   unlink( output.folder, recursive = TRUE )
 
   cat( "Done!\n" )
+
+  gc()
 
   # print a timing summary
   process.duration <- as.integer( Sys.time() ) - start.time
