@@ -96,35 +96,32 @@ landMask <- function( lat, lon, cores = TRUE ) {
     sp::SpatialPolygons( . )
 
   # analyse each point to see whether it's land or water
-  # if( isTRUE( parallel ) ) {
-  #     cl <- parallel::makeCluster( coresToUse )
-  #     doParallel::registerDoParallel( cl )
-  # } else if( is.numeric( parallel ) && as.integer( parallel ) > 1L ) {
-  #     cl <- parallel::makeCluster( as.integer( parallel ) )
-  #     doParallel::registerDoParallel( cl )
-  #     parallel <- TRUE
-  # } else {
-  #     paropts <- NULL
-  #     progress <- "text"
-  # }
-  # if( parallel ) {
-  #     paropts <- list(
-  #         .packages = c( "rgeos", "sp" ),
-  #         .export = c( "map", "map.spatial" )
-  #     )
-  #     progress <- "none"
-  # }
-  if( parallel && Sys.info()[['sysname']] != "Windows" ) {
-    doMC::registerDoMC( cores )
-    progress <- "none"
-  } else if( Sys.info()[['sysname']] == "Windows" ) {
-    print( "Sorry, cannot multi-thread this process under Windows." )
-    parallel <- FALSE
-    progress <- "text"
+  if( parallel && as.integer( cores ) > 1L ) {
+      cl <- parallel::makeCluster( as.integer( cores ) )
+      doParallel::registerDoParallel( cl )
+      parallel <- TRUE
   } else {
-    parallel <- FALSE
-    progress <- "text"
+      paropts <- NULL
+      progress <- "text"
   }
+  if( parallel ) {
+      paropts <- list(
+          .packages = c( "rgeos", "sp" ),
+          .export = c( "map", "map.spatial" )
+      )
+      progress <- "none"
+  }
+  # if( parallel && Sys.info()[['sysname']] != "Windows" ) {
+  #   doMC::registerDoMC( cores )
+  #   progress <- "none"
+  # } else if( Sys.info()[['sysname']] == "Windows" ) {
+  #   print( "Sorry, cannot multi-thread this process under Windows." )
+  #   parallel <- FALSE
+  #   progress <- "text"
+  # } else {
+  #   parallel <- FALSE
+  #   progress <- "text"
+  # }
 
   land.water <- plyr::aaply( .data = map,
                              .margins = c( 1, 2 ),

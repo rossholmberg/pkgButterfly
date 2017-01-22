@@ -227,14 +227,24 @@ costCalcMaster <- function( currents.file,
   cat( "\nInterpolating grid-wise current data using inverse distance weighting.\n" )
   cat( "PLEASE BE PATIENT. This process may take a long time, depending on data and parameters...\n" )
 
-  if( parallel && Sys.info()[['sysname']] != "Windows" ) {
-    doMC::registerDoMC( cores = coresToUse )
-    progress <- "none"
+  # if( parallel && Sys.info()[['sysname']] != "Windows" ) {
+  #   doMC::registerDoMC( cores = coresToUse )
+  #   progress <- "none"
+  #   parallel.forCost <- TRUE
+  # } else {
+  #   parallel.forCost <- FALSE
+  #   progress <- "text"
+  #   cat( "Sorry, this process is being passed to C++ for processing, this cannot be multi-threaded under Windows.\n" )
+  # }
+
+  if( parallel ) {
+    cl <- doParallel::makeCluster( coresToUse )
+    doParallel::registerDoParallel( cl )
     parallel.forCost <- TRUE
+    progress <- "none"
   } else {
     parallel.forCost <- FALSE
     progress <- "text"
-    cat( "Sorry, this process is being passed to C++ for processing, this cannot be multi-threaded under Windows.\n" )
   }
 
   cat( paste( "Started IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
@@ -252,6 +262,8 @@ costCalcMaster <- function( currents.file,
                               .progress = progress ) %>%
     do.call( what = rbind ) %>%
     as.data.frame()
+
+  doParallel::stopImplicitCluster( cl )
 
   cat( paste( "Completed IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
   cat( "\n" )
