@@ -21,6 +21,7 @@
 #'
 #' @import data.table
 #' @import doParallel
+#' @import parallel
 #' @import foreach
 #' @import plyr
 #' @import magrittr
@@ -238,10 +239,14 @@ costCalcMaster <- function( currents.file,
   # }
 
   if( parallel ) {
-    cl <- doParallel::makeCluster( coresToUse )
+    cl <- parallel::makeCluster( coresToUse )
     doParallel::registerDoParallel( cl )
     parallel.forCost <- TRUE
     progress <- "none"
+    paropts <- list(
+      .packages = c( "pkgButterfly" ),
+      .export = c( "grid.df", "input.coords", "df_cost" )
+    )
   } else {
     parallel.forCost <- FALSE
     progress <- "text"
