@@ -31,11 +31,15 @@ extractFromNc <- function( file, data.variable ) {
     as.POSIXct( origin = "1970-01-01", tz = "UTC" ) %>%
     as.Date()
 
-  output[ , as.character( times ) := lapply( X = seq_along( data[1,1,] ),
-                    FUN = function( x, data ) { as.vector( data[,,x] ) },
-                    data = ncdf4::ncvar_get( nc = con, varid = data.variable ) ) ]
-
+  file.contents <- ncdf4::ncvar_get( nc = con, varid = data.variable )
   ncdf4::nc_close( con )
+
+  output[ , as.character( times ) := lapply( X = seq_along( file.contents[1,1,] ),
+                    FUN = function( x ) { as.vector( file.contents[,,x] ) } ) ]
+
+  # clean up
+  rm( file.contents )
+  gc()
 
   return( output )
 
