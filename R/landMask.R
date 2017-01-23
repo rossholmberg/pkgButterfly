@@ -6,12 +6,12 @@
 #' @param cores number of cores to use when multi-threading
 #'
 #' @import rgeos
-#' @import maps
 #' @import sp
 #' @import plyr
 #' @import magrittr
 #' @import doParallel
 #' @import parallel
+#' @import maps
 #'
 #' @return data.frame
 #'
