@@ -39,6 +39,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
   lonRange <- range( lon )
 
   # download a map of the area
+  worldMapEnv <- maps::worldMapEnv
   mapObject <- maps::map( database = "world",
                           xlim = lonRange,
                           ylim = latRange,
