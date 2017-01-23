@@ -41,8 +41,8 @@ NumericVector idDub( int i,
 
         // create a distance vector
         dist = sqrt(
-            pow( ( inputlat - output_lat ), 2 ) +
-                pow( ( inputlon - output_lon ) , 2 )
+            pow( ( inputlat - output_lat ) * 110.574, 2 ) +
+                pow( ( inputlon - output_lon ) * 111.32 * cos( inputlat / ( 180 / 3.141593 ) ), 2 )
         );
 
         // if there's a perfectly aligned datapoint, use it (assume there's only 1)
