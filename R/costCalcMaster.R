@@ -346,7 +346,7 @@ costCalcMaster <- function( currents.file,
   # we will utilise multi-threading here too, if requested in the original function call
   cat( "Passing currents data to CircuitScape for processing.\n" )
 
-  suppressMessages(
+  cs.output <- capture.output(
     plyr::l_ply( .data = seq_along( costs.filelist ),
                  .fun = runCircuitscape,
                  costs.filelist = costs.filelist,
@@ -356,9 +356,11 @@ costCalcMaster <- function( currents.file,
                  sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
                  dates = dates,
                  .parallel = FALSE,
-                 .progress = "none"
+                 .progress = "text"
     )
   )
+  rm( cs.output )
+  gc()
 
   # list all the files within the temporary directory
   conductance.files <- list.files( path = paste0( output.folder, "/conductance" ),
