@@ -16,9 +16,12 @@
 meanChlorophyll <- function( date,
                              data.chlorophyll,
                              data.conductance,
-                             max.day.diff = 31 ) {
+                             max.day.diff = 31,
+                             cond.threshold = 0.75 ) {
 
+  # initialise some objects
   lat <- lon <- cond.lat <- cond.lon <- conductance <- NULL
+
 
   date <- as.character( date )
   chlorophyll.thisdate <- data.chlorophyll[ , .( lat, lon ) ]
@@ -53,16 +56,25 @@ meanChlorophyll <- function( date,
   chlorophyll.thisdate[ , cond.lat := round( lat / conductance.cell.size ) * conductance.cell.size ]
   chlorophyll.thisdate[ , cond.lon := round( lon / conductance.cell.size ) * conductance.cell.size ]
 
+  # we need to take ONLY chlorophyll values where the conductance is above the threshold
+  conductance.threshold <- sort( conductance.thisdate[['conductance']] )[ round( nrow( conductance.thisdate ) * cond.threshold ) ]
+  conductance.thisdate[ is.na( conductance ) | conductance < conductance.threshold, conductance := NA_real_ ]
+
   # now merge the two tables
   setkey( conductance.thisdate, lat, lon )
   setkey( chlorophyll.thisdate, cond.lat, cond.lon )
   chlorophyll.thisdate <- conductance.thisdate[ chlorophyll.thisdate ]
+
 
   # and extract a mean chlorophyll value for the specified date
   mean.chlorophyll <- mean(
     chlorophyll.thisdate[ !is.na( conductance ), data ],
     na.rm = TRUE
   )
+
+  # clean up
+  rm( chlorophyll.thisdate, conductance.thisdate )
+  gc()
 
   return( mean.chlorophyll )
 }
