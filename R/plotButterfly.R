@@ -16,6 +16,8 @@ plotButterfly <- function( conductance.table, which = 1 ) {
 
   if( class( which ) == "character" ) {
     which <- which( names( conductance.table ) == which )
+  } else {
+    which <- which + 2L
   }
 
   rows <- sum( conductance.table[['lon']] == conductance.table[['lon']][1] )
