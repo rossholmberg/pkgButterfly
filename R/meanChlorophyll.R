@@ -5,6 +5,9 @@
 #' @param data.conductance data calculated using `costCalcMaster`, based on currents
 #' @param max.day.diff integer, number of days to allow as a difference between a conductance array
 #' and the corresponding data array
+#' @param cond.threshold what fraction should be used as a cutoff for conductance values
+#' must be a numeric value between 0 and 1. eg: 0.75 (default) will take the top 25% of conductance
+#' values to be used for calculating mean chlorophyll
 #'
 #' @import data.table
 #'

@@ -11,7 +11,7 @@
 #' @import plyr
 #' @import magrittr
 #' @import doParallel
-#' @import foreach
+#' @import parallel
 #'
 #' @return data.frame
 #'
@@ -134,6 +134,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
                              .parallel = parallel,
                              .progress = progress )
 
+  parallel::stopCluster( cl )
 
   # change binary data and combine
   map[ , , 1 ] <- as.integer( land.water )

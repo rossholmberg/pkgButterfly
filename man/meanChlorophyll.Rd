@@ -4,7 +4,8 @@
 \alias{meanChlorophyll}
 \title{meanChlorophyll Calculating the relevant metric for a single time}
 \usage{
-meanChlorophyll(date, data.chlorophyll, data.conductance, max.day.diff = 31)
+meanChlorophyll(date, data.chlorophyll, data.conductance, max.day.diff = 31,
+  cond.threshold = 0.75)
 }
 \arguments{
 \item{date}{date for which to calculate the chlorophyll level}
@@ -15,6 +16,10 @@ meanChlorophyll(date, data.chlorophyll, data.conductance, max.day.diff = 31)
 
 \item{max.day.diff}{integer, number of days to allow as a difference between a conductance array
 and the corresponding data array}
+
+\item{cond.threshold}{what fraction should be used as a cutoff for conductance values
+must be a numeric value between 0 and 1. eg: 0.75 (default) will take the top 25% of conductance
+values to be used for calculating mean chlorophyll}
 }
 \value{
 numeric value for mean chlorophyll
