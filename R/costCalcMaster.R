@@ -272,6 +272,13 @@ costCalcMaster <- function( currents.file,
   rm( df_cost )
   gc()
 
+  # view the cost matrix for a particular date if desired
+  # cost.matrix[[1]] %>%
+  #   matrix( nrow = sum( cost.matrix$lon == cost.matrix$lon[1] ) ) %>%
+  #   apply( 2, rev ) %>%
+  #   t() %>%
+  #   fields::image.plot()
+
   noDataValue = -9999
 
   # mask areas of land with the designated noDataValue

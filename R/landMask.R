@@ -34,8 +34,6 @@ landMask <- function( lat, lon, cores = TRUE ) {
     cores <- 1L
   }
 
-  pkgLoad( c( "rgeos", "maps", "sp", "magrittr" ) )
-
   # get the latitude and longitude ranges
   latRange <- range( lat )
   lonRange <- range( lon )

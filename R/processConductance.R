@@ -38,12 +38,14 @@ processConductance <-  function( conductance.file,
   cell.size <- as.numeric( gsub( "cellsize| ", "", header[ grep( "cellsize", header ) ] ) )
   noDataValue <- as.numeric( gsub( "NODATA_value| ", "", header[ grep( "NODATA_value", header ) ] ) )
 
-  data <- readr::read_delim( conductance.file,
-                             delim = " ",
-                             trim_ws = TRUE,
-                             skip = 6,
-                             col_names = FALSE,
-                             na = c( "", "NA", noDataValue )
+  suppressMessages(
+    data <- readr::read_delim( conductance.file,
+                               delim = " ",
+                               trim_ws = TRUE,
+                               skip = 6,
+                               col_names = FALSE,
+                               na = c( "", "NA", noDataValue )
+    )
   )
 
   # for some reason, the last column sometimes comes up as all NA values, if so, ditch it
