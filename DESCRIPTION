@@ -13,7 +13,7 @@ LazyData: true
 RoxygenNote: 5.0.1
 Imports: data.table, raster, fields, rgdal, CircStats, maps, arrayhelpers, maptools,
          Rcpp, parallel, doParallel, plyr, magrittr, readr, geosphere, ncdf4,
-         rgeos, sp, circular, stats, gstat, abind, doMC, mapdata
+         rgeos, sp, circular, stats, gstat, abind, doMC
 Suggests: dplyr,
           ggplot2
 LinkingTo: Rcpp

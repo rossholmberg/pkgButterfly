@@ -12,7 +12,6 @@
 #' @import doParallel
 #' @import parallel
 #' @import maps
-#' @import mapdata
 #'
 #' @return data.frame
 #'
