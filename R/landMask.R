@@ -41,6 +41,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
 
   # download a map of the area
   # worldMapEnv <- maps::worldMapEnv
+  pkgLoad( "maps" )
   mapObject <- maps::map( database = "world",
                           xlim = lonRange,
                           ylim = latRange,
