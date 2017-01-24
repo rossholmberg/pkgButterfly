@@ -93,6 +93,7 @@ dates.chlorophyll <- plyr::ldply( .data = chl.files,
   setorder( date ) %>%
   # make sure the column names are appropriate
   setnames( c( "date", "mean.chlorophyll" ) )
+gc() # collect garbage to clear RAM
 ```
 
 What we're left with is a data frame displaying dates and chlorophyll values.
