@@ -8,6 +8,7 @@
 #' @param source.asc.link "source" file for cuircuitscape
 #' @param sink.asc.link "sink" file for cuircuitscape
 #' @param dates list of dates corresponding to time series datapoints
+#' @param python.call specify how to call python
 #'
 #' @keywords circuitscape, ascii
 #'

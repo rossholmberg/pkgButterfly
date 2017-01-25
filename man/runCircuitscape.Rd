@@ -21,6 +21,8 @@ runCircuitscape(i, costs.filelist, csrun.link, output.folder, source.asc.link,
 \item{sink.asc.link}{"sink" file for cuircuitscape}
 
 \item{dates}{list of dates corresponding to time series datapoints}
+
+\item{python.call}{specify how to call python}
 }
 \value{
 none
