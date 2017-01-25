@@ -1,7 +1,7 @@
 Package: pkgButterfly
 Type: Package
 Title: Functions to calculate relevant local oceanographic variables based on Afan et. al
-Version: 1.1.0.8
+Version: 1.1.0.9
 Authors@R: person( "Ross", "Holmberg", email = "ross@holmberg.com.au", role = c( "aut", "cre" ) )
 Maintainer: Ross Holmberg <ross@holmberg.com.au>
 Description: Uses currents data to calculate an appropriate area of influence for surface variables, then applies it to give a local metric.

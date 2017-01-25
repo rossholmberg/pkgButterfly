@@ -8,7 +8,7 @@
 #' @param source.asc.link "source" file for cuircuitscape
 #' @param sink.asc.link "sink" file for cuircuitscape
 #' @param dates list of dates corresponding to time series datapoints
-#' @param python.call specify how to call python
+#' @param python.call specify python call
 #'
 #' @keywords circuitscape, ascii
 #'
@@ -16,7 +16,7 @@
 #'
 #' @return none
 
-runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, source.asc.link, sink.asc.link, dates ) {
+runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, source.asc.link, sink.asc.link, dates, python.call = 'python2.7' ) {
 
   # Make an .ini file
   CS_ini <- paste("[circuitscape options]",
@@ -27,8 +27,7 @@ runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, sourc
                   paste0( "ground_file = ", sink.asc.link ),
                   paste0( "habitat_file = ", costs.filelist[i] ), # habitat file: cost background. This will change along the time range
                   paste0( c( "output_file =" ), paste( "conductance/cond_", as.character( dates[i], "%Y%m%d" ), ".out" ) ),
-                  sep = "\n",
-                  python.call = 'python2.7'
+                  sep = "\n"
   ) # One conductance surface for each date. Change the path to store your outputs wherever you want
 
   setwd( output.folder )

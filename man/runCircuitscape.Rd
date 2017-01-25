@@ -5,7 +5,7 @@
 \title{runCircuitscape a function for externally applying the circuitscape algorithms to give data}
 \usage{
 runCircuitscape(i, costs.filelist, csrun.link, output.folder, source.asc.link,
-  sink.asc.link, dates)
+  sink.asc.link, dates, python.call = "python2.7")
 }
 \arguments{
 \item{i}{integer, used to iterate over multiple files}
@@ -22,7 +22,7 @@ runCircuitscape(i, costs.filelist, csrun.link, output.folder, source.asc.link,
 
 \item{dates}{list of dates corresponding to time series datapoints}
 
-\item{python.call}{specify how to call python}
+\item{python.call}{specify python call}
 }
 \value{
 none
