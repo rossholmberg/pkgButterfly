@@ -21,136 +21,132 @@
 
 landMask <- function( lat, lon, cores = TRUE ) {
 
-  if( isTRUE( cores ) ) {
-    parallel <- TRUE
-    cores <- parallel::detectCores( logical = F )
-    if( cores == parallel::detectCores( logical = T ) ) {
-      cores <- cores - 1L
+    if( isTRUE( cores ) ) {
+        parallel <- TRUE
+        cores <- parallel::detectCores( logical = F )
+        if( cores == parallel::detectCores( logical = T ) ) {
+            cores <- cores - 1L
+        }
+    } else if( is.numeric( cores ) ) {
+        parallel <- TRUE
+    } else {
+        parallel <- FALSE
+        cores <- 1L
     }
-  } else if( is.numeric( cores ) & as.integer( cores ) > 1L ) {
-    parallel <- TRUE
-    cores <- as.integer( cores )
-  } else {
-    parallel <- FALSE
-    cores <- 1L
-  }
 
-  # get the latitude and longitude ranges
-  latRange <- range( lat )
-  lonRange <- range( lon )
+    # get the latitude and longitude ranges
+    latRange <- range( lat )
+    lonRange <- range( lon )
 
-  # download a map of the area
-  # worldMapEnv <- maps::worldMapEnv
-  pkgLoad( c( "maps", "maptools" ) )
-  mapObject <- maps::map( database = "world",
-                          xlim = lonRange,
-                          ylim = latRange,
-                          fill = TRUE,
-                          plot = FALSE
-  )
+    # download a map of the area
+    # worldMapEnv <- maps::worldMapEnv
+    pkgLoad( "maps" )
+    mapObject <- maps::map( database = "world",
+                            xlim = lonRange,
+                            ylim = latRange,
+                            fill = TRUE,
+                            plot = FALSE
+    )
 
-  # also turn the grid into a 3D array
-  grid.latlist <- unique( lat )
-  grid.lonlist <- unique( lon )
-  grid.array <- array( data = NA,
-                       dim = c( length( grid.latlist ),
-                                length( grid.lonlist ),
-                                2 )
-  )
-  grid.array[,,1] <- sort( rep( grid.lonlist, length( grid.latlist ) ) )
-  grid.array[,,2] <- rep( sort( grid.latlist, decreasing = TRUE ), length( grid.lonlist ) )
+    # also turn the grid into a 3D array
+    grid.latlist <- unique( lat )
+    grid.lonlist <- unique( lon )
+    grid.array <- array( data = NA,
+                         dim = c( length( grid.latlist ),
+                                  length( grid.lonlist ),
+                                  2 )
+    )
+    grid.array[,,1] <- sort( rep( grid.lonlist, length( grid.latlist ) ) )
+    grid.array[,,2] <- rep( sort( grid.latlist, decreasing = TRUE ), length( grid.lonlist ) )
 
-  # create an empty matrix to fill
-  map <- array( data = NA,
-                dim = c( dim( grid.array )[1:2], 3 )
-  )
+    # create an empty matrix to fill
+    map <- array( data = NA,
+                  dim = c( dim( grid.array )[1:2], 3 )
+    )
 
-  # fill 2 layers for latitude and longitude values
-  map[ , , 2 ] <- c( rep( seq.int( from = max( latRange ),
-                                   to = min( latRange ),
-                                   length.out = dim( map )[ 1 ] ),
-                          dim( map )[ 2 ] )
-  )
-  map[ , , 3 ] <- sort( c( rep( seq.int( from = min( lonRange ),
-                                         to = max( lonRange ),
-                                         length.out = dim( map )[ 2 ] ),
-                                dim( map )[ 1 ] ) )
-  )
+    # fill 2 layers for latitude and longitude values
+    map[ , , 2 ] <- c( rep( seq.int( from = max( latRange ),
+                                     to = min( latRange ),
+                                     length.out = dim( map )[ 1 ] ),
+                            dim( map )[ 2 ] )
+    )
+    map[ , , 3 ] <- sort( c( rep( seq.int( from = min( lonRange ),
+                                           to = max( lonRange ),
+                                           length.out = dim( map )[ 2 ] ),
+                                  dim( map )[ 1 ] ) )
+    )
 
 
-  # get the latitude and longitude coordinates from the mapObject
-  coords.matrix <- matrix( c( mapObject$x, mapObject$y ), ncol = 2 )
+    # get the latitude and longitude coordinates from the mapObject
+    coords.matrix <- matrix( c( mapObject$x, mapObject$y ), ncol = 2 )
 
-  # extract the divisions (between polygon lines) from the mapObject
-  div <- c( 0, which( is.na( mapObject$x ) ), length( mapObject$x ) + 1 )
+    # extract the divisions (between polygon lines) from the mapObject
+    div <- c( 0, which( is.na( mapObject$x ) ), length( mapObject$x ) + 1 )
 
-  # separate coordinates by divisions
-  coords.list <- sapply( 1:( length( div ) - 1 ),
-                         function( x ) {
-                           coords.matrix[ ( div[ x ] + 1 ) : ( div[ x + 1 ] - 1 ), ]
-                         } )
+    # separate coordinates by divisions
+    coords.list <- sapply( 1:( length( div ) - 1 ),
+                           function( x ) {
+                               coords.matrix[ ( div[ x ] + 1 ) : ( div[ x + 1 ] - 1 ), ]
+                           } )
 
-  ## change sets of coordinates into SpatialPolygons
-  map.spatial <- sapply( coords.list, function( x ) { sp::Polygon( x ) } ) %>%
-    sp::Polygons( ., ID = "a" ) %>%
-    list() %>%
-    sp::SpatialPolygons( . )
+    ## change sets of coordinates into SpatialPolygons
+    map.spatial <- sapply( coords.list, function( x ) { sp::Polygon( x ) } ) %>%
+        sp::Polygons( ., ID = "a" ) %>%
+        list() %>%
+        sp::SpatialPolygons( . )
 
-  # set up parallel processing if requested
-  if( parallel && as.integer( cores ) > 1L ) {
-      cl <- parallel::makeCluster( as.integer( cores ) )
-      doParallel::registerDoParallel( cl )
-      parallel <- TRUE
-      paropts <- list(
-          .packages = c( "rgeos", "sp" ),
-          .export = c( "map", "map.spatial" )
-      )
-      progress <- "none"
-  } else {
-      paropts <- NULL
-      progress <- "text"
-      parallel <- FALSE
-  }
+    # set up parallel processing if requested
+    if( parallel && as.integer( cores ) > 1L ) {
+        cl <- parallel::makeCluster( as.integer( cores ) )
+        doParallel::registerDoParallel( cl )
+        parallel <- TRUE
+    } else {
+        paropts <- NULL
+        progress <- "text"
+        parallel <- FALSE
+    }
+    if( parallel ) {
+        paropts <- list(
+            .packages = c( "rgeos", "sp" ),
+            .export = c( "map", "map.spatial" )
+        )
+        progress <- "none"
+    }
 
-  # analyse each point to see whether it's land or water
-  # using suppress warnings here to prevent a warning described in https://github.com/hadley/plyr/issues/203
-  # the warning appears to be caused by a bug in plyr. Output is fine.
-  # suppressWarnings(
-      land.water <- plyr::aaply( .data = map,
-                                 .margins = c( 1, 2 ),
-                                 .fun = function(x) {
-                                     rgeos::gContains( map.spatial,
-                                                       sp::SpatialPoints(
-                                                           matrix( c( x[ 3 ], x[ 2 ] ), ncol = 2 )
-                                                       ) )
-                                 },
-                                 .parallel = parallel,
-                                 .progress = progress,
-                                 .paropts = paropts )
-  # )
+    # analyse each point to see whether it's land or water
+    land.water <- plyr::aaply( .data = map,
+                               .margins = c( 1, 2 ),
+                               .fun = function(x) {
+                                   rgeos::gContains( map.spatial,
+                                                     sp::SpatialPoints(
+                                                         matrix( c( x[ 3 ], x[ 2 ] ), ncol = 2 )
+                                                     ) )
+                               },
+                               .parallel = parallel,
+                               .progress = progress )
 
-  # stop multi-threading if it's running
-  if( parallel ) {
-      doParallel::stopImplicitCluster()
-      parallel::stopCluster( cl )
-  }
+    # stop multi-threading if it's running
+    if( parallel ) {
+        doParallel::stopImplicitCluster()
+        parallel::stopCluster( cl )
+    }
 
 
-  # change binary data and combine
-  map[ , , 1 ] <- as.integer( land.water )
+    # change binary data and combine
+    map[ , , 1 ] <- as.integer( land.water )
 
-  map.df <- data.frame( lon = as.vector( map[,,3] ),
-                        lat = as.vector( map[,,2] ),
-                        mask = as.vector( map[,,1] )
-  )
+    map.df <- data.frame( lon = as.vector( map[,,3] ),
+                          lat = as.vector( map[,,2] ),
+                          mask = as.vector( map[,,1] )
+    )
 
-  ##
-  # plot( coords.matrix, pch = ".", xlim = lonRange, ylim = latRange )
-  # points( c( map[ , , 3 ] ), c( map[ , , 2 ] ),
-  #         col = c( 0, 1 )[ as.factor( c( map[ , , 1 ] ) ) ],
-  #         pch = 19 )
+    ##
+    # plot( coords.matrix, pch = ".", xlim = lonRange, ylim = latRange )
+    # points( c( map[ , , 3 ] ), c( map[ , , 2 ] ),
+    #         col = c( 0, 1 )[ as.factor( c( map[ , , 1 ] ) ) ],
+    #         pch = 19 )
 
-  return( map.df )
+    return( map.df )
 
 }
 
