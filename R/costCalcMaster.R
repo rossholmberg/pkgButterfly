@@ -249,23 +249,28 @@ costCalcMaster <- function( currents.file,
   } else {
     parallel.forCost <- FALSE
     progress <- "text"
+    paropts <- NULL
   }
 
   cat( paste( "Started IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
   cat( "\n" )
 
-  cost.matrix <- plyr::llply( .data = seq_len( nrow( grid.df ) ),
-                              .fun = idDub,
-                              inputlat = input.coords$latit,
-                              inputlon = input.coords$longi,
-                              inputdata = df_cost,
-                              outputlat = grid.df$lat,
-                              outputlon = grid.df$lon,
-                              landmask = grid.df$landmask,
-                              .parallel = parallel.forCost,
-                              .progress = progress ) %>%
-    do.call( what = rbind ) %>%
-    as.data.frame()
+  # using suppress warnings here to prevent a warning described in https://github.com/hadley/plyr/issues/203
+  # the warning appears to be caused by a bug in plyr. Output is fine.
+  suppressWarnings( cost.matrix <-
+      plyr::llply( .data = seq_len( nrow( grid.df ) ),
+                   .fun = idDub,
+                   inputlat = input.coords$latit,
+                   inputlon = input.coords$longi,
+                   inputdata = df_cost,
+                   outputlat = grid.df$lat,
+                   outputlon = grid.df$lon,
+                   landmask = grid.df$landmask,
+                   .parallel = parallel.forCost,
+                   .progress = progress,
+                   .paropts = paropts ) %>%
+      do.call( what = rbind ) %>%
+      as.data.frame() )
 
   if( parallel.forCost ) {
       doParallel::stopImplicitCluster()
