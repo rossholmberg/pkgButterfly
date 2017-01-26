@@ -20,7 +20,8 @@
 #' @export
 #'
 #' @import data.table
-#' @import doMC
+#' @import doParallel
+#' @import parallel
 #' @import plyr
 #' @import magrittr
 #' @import ncdf4
@@ -226,29 +227,29 @@ costCalcMaster <- function( currents.file,
   cat( "\nInterpolating grid-wise current data using inverse distance weighting.\n" )
   cat( "PLEASE BE PATIENT. This process may take a long time, depending on data and parameters...\n" )
 
-  if( parallel && Sys.info()[['sysname']] != "Windows" ) {
-    doMC::registerDoMC( cores = coresToUse )
-    progress <- "none"
-    parallel.forCost <- TRUE
-  } else {
-    parallel.forCost <- FALSE
-    progress <- "text"
-    cat( "Sorry, this process is being passed to C++ for processing, this cannot be multi-threaded under Windows.\n" )
-  }
-
-  # if( parallel ) {
-  #   cl <- parallel::makeCluster( coresToUse )
-  #   doParallel::registerDoParallel( cl )
-  #   parallel.forCost <- TRUE
+  # if( parallel && Sys.info()[['sysname']] != "Windows" ) {
+  #   doMC::registerDoMC( cores = coresToUse )
   #   progress <- "none"
-  #   paropts <- list(
-  #     .packages = c( "pkgButterfly" ),
-  #     .export = c( "grid.df", "input.coords", "df_cost" )
-  #   )
+  #   parallel.forCost <- TRUE
   # } else {
   #   parallel.forCost <- FALSE
   #   progress <- "text"
+  #   cat( "Sorry, this process is being passed to C++ for processing, this cannot be multi-threaded under Windows.\n" )
   # }
+
+  if( parallel ) {
+    cl <- parallel::makeCluster( coresToUse )
+    doParallel::registerDoParallel( cl )
+    parallel.forCost <- TRUE
+    progress <- "none"
+    paropts <- list(
+      .packages = c( "pkgButterfly" ),
+      .export = c( "grid.df", "input.coords", "df_cost" )
+    )
+  } else {
+    parallel.forCost <- FALSE
+    progress <- "text"
+  }
 
   cat( paste( "Started IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
   cat( "\n" )
@@ -265,6 +266,11 @@ costCalcMaster <- function( currents.file,
                               .progress = progress ) %>%
     do.call( what = rbind ) %>%
     as.data.frame()
+
+  if( parallel.forCost ) {
+      doParallel::stopImplicitCluster()
+      parallel::stopCluster( cl )
+  }
 
   cat( paste( "Completed IDW processing at", format( Sys.time(), "%H:%M:%S ____ %Y-%m-%d" ) ) )
   cat( "\n" )
