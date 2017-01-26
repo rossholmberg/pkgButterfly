@@ -127,7 +127,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
 
   # stop multi-threading if it's running
   if( parallel ) {
-      doParallel::stopImplicitCluster( cl )
+      doParallel::stopImplicitCluster()
       parallel::stopCluster( cl )
   }
 
@@ -149,3 +149,5 @@ landMask <- function( lat, lon, cores = TRUE ) {
   return( map.df )
 
 }
+
+
