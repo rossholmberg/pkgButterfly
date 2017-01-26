@@ -95,7 +95,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
     list() %>%
     sp::SpatialPolygons( . )
 
-  # analyse each point to see whether it's land or water
+  # set up parallel processing if requested
   if( parallel && as.integer( cores ) > 1L ) {
       cl <- parallel::makeCluster( as.integer( cores ) )
       doParallel::registerDoParallel( cl )
@@ -103,6 +103,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
   } else {
       paropts <- NULL
       progress <- "text"
+      parallel <- FALSE
   }
   if( parallel ) {
       paropts <- list(
@@ -111,18 +112,8 @@ landMask <- function( lat, lon, cores = TRUE ) {
       )
       progress <- "none"
   }
-  # if( parallel && Sys.info()[['sysname']] != "Windows" ) {
-  #   doMC::registerDoMC( cores )
-  #   progress <- "none"
-  # } else if( Sys.info()[['sysname']] == "Windows" ) {
-  #   print( "Sorry, cannot multi-thread this process under Windows." )
-  #   parallel <- FALSE
-  #   progress <- "text"
-  # } else {
-  #   parallel <- FALSE
-  #   progress <- "text"
-  # }
 
+  # analyse each point to see whether it's land or water
   land.water <- plyr::aaply( .data = map,
                              .margins = c( 1, 2 ),
                              .fun = function(x) {
@@ -134,7 +125,12 @@ landMask <- function( lat, lon, cores = TRUE ) {
                              .parallel = parallel,
                              .progress = progress )
 
-  parallel::stopCluster( cl )
+  # stop multi-threading if it's running
+  if( parallel ) {
+      doParallel::stopImplicitCluster( cl )
+      parallel::stopCluster( cl )
+  }
+
 
   # change binary data and combine
   map[ , , 1 ] <- as.integer( land.water )
