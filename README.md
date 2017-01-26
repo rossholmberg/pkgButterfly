@@ -1,4 +1,4 @@
-<!-- Do not edit README.md directly, edit README.Rmd instead -->
+<!-- Do not edit README.md directly, edit README.Rmd instead and re-knit before commit -->
 pkgButterfly
 ============
 
@@ -29,12 +29,6 @@ A file containing currents data needs to be input to the calculations. This data
 currents.file <- "~/git/butterfly R script/dataset-global-reanalysis-phys-001-011-ran-it-cglors-monthly-u-v_1463479328704.nc"
 ```
 
-A link to the python script to be called when invoking the CircuitScape algorithm. Note this should be a `.py` file.
-
-``` r
-csrun.link <- "/home/pinp/Downloads/Circuitscape-master/bin/csrun.py"
-```
-
 A folder to be used to temporarily store data created during processing.
 
 ``` r
@@ -52,7 +46,6 @@ conductance.table <- costCalcMaster( output.folder = output.folder,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
                                      split.quant = 0.75,
-                                     csrun.link = csrun.link,
                                      parallel = 6L
 )
 gc() # collect garbage to clear RAM

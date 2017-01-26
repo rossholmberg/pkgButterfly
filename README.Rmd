@@ -7,7 +7,7 @@ output:
     variant: markdown_github
 ---
 
-<!-- Do not edit README.md directly, edit README.Rmd instead -->
+<!-- Do not edit README.md directly, edit README.Rmd instead and re-knit before commit -->
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
@@ -45,12 +45,6 @@ currents.file <- "~/git/butterfly R script/dataset-global-reanalysis-phys-001-01
 ```
 
 
-A link to the python script to be called when invoking the CircuitScape algorithm. Note this should be a `.py` file.
-```{r}
-csrun.link <- "/home/pinp/Downloads/Circuitscape-master/bin/csrun.py"
-```
-
-
 A folder to be used to temporarily store data created during processing.
 ```{r, eval=FALSE}
 output.folder <- "~/Desktop/Rtemp/"
@@ -67,7 +61,6 @@ conductance.table <- costCalcMaster( output.folder = output.folder,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
                                      split.quant = 0.75,
-                                     csrun.link = csrun.link,
                                      parallel = 6L
 )
 gc() # collect garbage to clear RAM
