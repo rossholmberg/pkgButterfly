@@ -114,16 +114,20 @@ landMask <- function( lat, lon, cores = TRUE ) {
     }
 
     # analyse each point to see whether it's land or water
-    land.water <- plyr::aaply( .data = map,
-                               .margins = c( 1, 2 ),
-                               .fun = function(x) {
-                                   rgeos::gContains( map.spatial,
-                                                     sp::SpatialPoints(
-                                                         matrix( c( x[ 3 ], x[ 2 ] ), ncol = 2 )
-                                                     ) )
-                               },
-                               .parallel = parallel,
-                               .progress = progress )
+    # using suppress warnings here to prevent a warning described in https://github.com/hadley/plyr/issues/203
+    # the warning appears to be caused by a bug in plyr. Output is fine.
+    suppressWarnings(
+        land.water <- plyr::aaply( .data = map,
+                                   .margins = c( 1, 2 ),
+                                   .fun = function(x) {
+                                       rgeos::gContains( map.spatial,
+                                                         sp::SpatialPoints(
+                                                             matrix( c( x[ 3 ], x[ 2 ] ), ncol = 2 )
+                                                         ) )
+                                   },
+                                   .parallel = parallel,
+                                   .progress = progress )
+    )
 
     # stop multi-threading if it's running
     if( parallel ) {

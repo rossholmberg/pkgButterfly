@@ -188,7 +188,7 @@ costCalcMaster <- function( currents.file,
   cat( "Downloading local area map, and converting to appropriate mask.\n" )
   land.mask <- landMask( lat = grid.df$lat,
                          lon = grid.df$lon,
-                         cores = 1L
+                         cores = coresToUse
   ) %>%
     data.table::setDT(.) %>%
     data.table::setorder( lon, -lat )
@@ -257,19 +257,20 @@ costCalcMaster <- function( currents.file,
 
   # using suppress warnings here to prevent a warning described in https://github.com/hadley/plyr/issues/203
   # the warning appears to be caused by a bug in plyr. Output is fine.
-  cost.matrix <-
-      plyr::llply( .data = seq_len( nrow( grid.df ) ),
-                   .fun = idDub,
-                   inputlat = input.coords$latit,
-                   inputlon = input.coords$longi,
-                   inputdata = df_cost,
-                   outputlat = grid.df$lat,
-                   outputlon = grid.df$lon,
-                   landmask = grid.df$landmask,
-                   .parallel = parallel.forCost,
-                   .progress = progress ) %>%
-      do.call( what = rbind ) %>%
-      as.data.frame()
+  suppressWarnings(
+      cost.matrix <- plyr::llply( .data = seq_len( nrow( grid.df ) ),
+                                  .fun = idDub,
+                                  inputlat = input.coords$latit,
+                                  inputlon = input.coords$longi,
+                                  inputdata = df_cost,
+                                  outputlat = grid.df$lat,
+                                  outputlon = grid.df$lon,
+                                  landmask = grid.df$landmask,
+                                  .parallel = parallel.forCost,
+                                  .progress = progress ) %>%
+          do.call( what = rbind ) %>%
+          as.data.frame()
+  )
 
   if( parallel.forCost ) {
       doParallel::stopImplicitCluster()
