@@ -257,7 +257,7 @@ costCalcMaster <- function( currents.file,
 
   # using suppress warnings here to prevent a warning described in https://github.com/hadley/plyr/issues/203
   # the warning appears to be caused by a bug in plyr. Output is fine.
-  suppressWarnings( cost.matrix <-
+  cost.matrix <-
       plyr::llply( .data = seq_len( nrow( grid.df ) ),
                    .fun = idDub,
                    inputlat = input.coords$latit,
@@ -267,10 +267,9 @@ costCalcMaster <- function( currents.file,
                    outputlon = grid.df$lon,
                    landmask = grid.df$landmask,
                    .parallel = parallel.forCost,
-                   .progress = progress,
-                   .paropts = paropts ) %>%
+                   .progress = progress ) %>%
       do.call( what = rbind ) %>%
-      as.data.frame() )
+      as.data.frame()
 
   if( parallel.forCost ) {
       doParallel::stopImplicitCluster()
