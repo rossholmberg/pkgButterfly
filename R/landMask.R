@@ -27,8 +27,9 @@ landMask <- function( lat, lon, cores = TRUE ) {
     if( cores == parallel::detectCores( logical = T ) ) {
       cores <- cores - 1L
     }
-  } else if( is.numeric( cores ) ) {
+  } else if( is.numeric( cores ) & as.integer( cores ) > 1L ) {
     parallel <- TRUE
+    cores <- as.integer( cores )
   } else {
     parallel <- FALSE
     cores <- 1L
@@ -40,7 +41,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
 
   # download a map of the area
   # worldMapEnv <- maps::worldMapEnv
-  pkgLoad( "maps" )
+  pkgLoad( c( "maps", "maptools" ) )
   mapObject <- maps::map( database = "world",
                           xlim = lonRange,
                           ylim = latRange,
@@ -100,23 +101,21 @@ landMask <- function( lat, lon, cores = TRUE ) {
       cl <- parallel::makeCluster( as.integer( cores ) )
       doParallel::registerDoParallel( cl )
       parallel <- TRUE
-  } else {
-      paropts <- NULL
-      progress <- "text"
-      parallel <- FALSE
-  }
-  if( parallel ) {
       paropts <- list(
           .packages = c( "rgeos", "sp" ),
           .export = c( "map", "map.spatial" )
       )
       progress <- "none"
+  } else {
+      paropts <- NULL
+      progress <- "text"
+      parallel <- FALSE
   }
 
   # analyse each point to see whether it's land or water
   # using suppress warnings here to prevent a warning described in https://github.com/hadley/plyr/issues/203
   # the warning appears to be caused by a bug in plyr. Output is fine.
-  suppressWarnings(
+  # suppressWarnings(
       land.water <- plyr::aaply( .data = map,
                                  .margins = c( 1, 2 ),
                                  .fun = function(x) {
@@ -128,7 +127,7 @@ landMask <- function( lat, lon, cores = TRUE ) {
                                  .parallel = parallel,
                                  .progress = progress,
                                  .paropts = paropts )
-  )
+  # )
 
   # stop multi-threading if it's running
   if( parallel ) {
