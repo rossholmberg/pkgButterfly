@@ -40,6 +40,8 @@ runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, sourc
 
   # Run circuitscape via a python call
 
-  system( paste( 'python2.7', csrun.link, paste0( output.folder, "/", ini.filename ) ), intern = TRUE )
+  system( paste( 'python2.7', csrun.link, paste0( output.folder, "/", ini.filename ) ),
+          intern = TRUE,
+          ignore.stdout = TRUE )
 
 }
