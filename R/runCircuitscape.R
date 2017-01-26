@@ -39,25 +39,7 @@ runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, sourc
        append = F )
 
   # Run circuitscape via a python call
-  system( paste( python.call, csrun.link, paste0( output.folder, "/", ini.filename ) ), intern = T )
-  #
-  # configFile.line <- paste( "configFile =", paste0( output.folder, "/", ini.filename ) )
 
-  # python.commands <- paste( '#!/usr/bin/python',
-  #                       '',
-  #                       'import sys',
-  #                       'from circuitscape.compute import Compute',
-  #                       'configFile = sys.argv[1]',
-  #                       'cs = Compute(configFile, \'Screen\')',
-  #                       'resistances = cs.compute()',
-  #                       'print resistances',
-  #                       '',
-  #                       sep = "\n" )
-  #
-  # python.file <- paste( output.folder, "csrun.py", sep = "/" )
-  #
-  # cat( python.commands, file = python.file, append = FALSE )
-  #
-  # system( paste( 'C:/Python27/python.exe', python.file, paste0( output.folder, "/", ini.filename ) ), intern = TRUE )
-  #
+  system( paste( 'python2.7', csrun.link, paste0( output.folder, "/", ini.filename ) ), intern = TRUE )
+
 }

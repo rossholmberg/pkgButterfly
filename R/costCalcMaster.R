@@ -11,7 +11,7 @@
 #' @param foraging.distance A distance in km to consider as the area of interest from the POI.
 #' @param cell.size Resolution (in degrees) to create for output. Note data will be interpolated from input.
 #' @param split.quant The point at which to split for areas of influence (0.75 takes the TOP 25\% influence), as per Afán et al 2015
-#' @param csrun.link complete link to `csrun.py` file, included as part of the CircuitScape package.
+# #' @param csrun.link complete link to `csrun.py` file, included as part of the CircuitScape package.
 #' @param parallel FALSE will not use multi-threading, TRUE will guess at an optimal number of cores based on processor,
 #' integer value specifies a number of cores to use when multi-threading tasks.
 #'
@@ -37,7 +37,7 @@ costCalcMaster <- function( currents.file,
                             foraging.distance,
                             cell.size = 0.1,
                             split.quant = 0.75,
-                            csrun.link,
+                            # csrun.link,
                             parallel ) {
 
   start.time <- as.integer( Sys.time() )
@@ -357,21 +357,35 @@ costCalcMaster <- function( currents.file,
   # we will utilise multi-threading here too, if requested in the original function call
   cat( "Passing currents data to CircuitScape for processing.\n" )
 
-  cs.output <- capture.output(
-    plyr::l_ply( .data = seq_along( costs.filelist ),
-                 .fun = runCircuitscape,
-                 costs.filelist = costs.filelist,
-                 csrun.link = csrun.link,
-                 output.folder = output.folder,
-                 source.asc.link = paste( output.folder, "source.asc", sep = "/" ),
-                 sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
-                 dates = dates,
-                 .parallel = FALSE,
-                 .progress = "text"
-    )
+  # make a python script file for running circuitscape
+  python.commands <- paste( '#!/usr/bin/python',
+                            '',
+                            'import sys',
+                            'from circuitscape.compute import Compute',
+                            'configFile = sys.argv[1]',
+                            'cs = Compute(configFile, \'Screen\')',
+                            'resistances = cs.compute()',
+                            'print resistances',
+                            '',
+                            sep = "\n" )
+
+  python.file <- paste( output.folder, "csrun.py", sep = "/" )
+
+  cat( python.commands, file = python.file, append = FALSE )
+
+
+  plyr::l_ply( .data = seq_along( costs.filelist ),
+               .fun = runCircuitscape,
+               costs.filelist = costs.filelist,
+               csrun.link = python.file,
+               output.folder = output.folder,
+               source.asc.link = paste( output.folder, "source.asc", sep = "/" ),
+               sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
+               dates = dates,
+               python.call = "python2.7",
+               .parallel = FALSE,
+               .progress = "none"
   )
-  rm( cs.output )
-  gc()
 
   # list all the files within the temporary directory
   conductance.files <- list.files( path = paste0( output.folder, "/conductance" ),
