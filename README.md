@@ -5,11 +5,9 @@ pkgButterfly
 ### Install and load
 
 ``` r
-if( !require( pkgButterfly ) ) {
-  devtools::install_github( "rossholmberg/pkgButterfly" )
-} else {
-  library( pkgButterfly )
-}
+devtools::install_github( "rossholmberg/pkgButterfly" )
+
+library( pkgButterfly )
 ```
 
 ### Chlorophyll analysis

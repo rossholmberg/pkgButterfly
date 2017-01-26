@@ -22,11 +22,9 @@ knitr::opts_chunk$set(
 ### Install and load
 
 ```{r, eval=FALSE}
-if( !require( pkgButterfly ) ) {
-  devtools::install_github( "rossholmberg/pkgButterfly" )
-} else {
-  library( pkgButterfly )
-}
+devtools::install_github( "rossholmberg/pkgButterfly" )
+
+library( pkgButterfly )
 ```
 
 ### Chlorophyll analysis
