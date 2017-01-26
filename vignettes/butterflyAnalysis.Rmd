@@ -48,12 +48,13 @@ output.folder <- "~/Desktop/Rtemp/"
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 ```{r Run butterfly calculation}
 conductance.table <- costCalcMaster( output.folder = output.folder,
-                                     # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ),
+                                     # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
                                      POI = central.foraging.area,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
+                                     split.quant = 0.75,
                                      csrun.link = csrun.link,
                                      parallel = 6L
 )
