@@ -1,15 +1,13 @@
 ---
-title: "Chlorophyll Analysis with butterfly"
+title: "pkgButterfly"
 author: "Ross Holmberg"
 date: "24 January 2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, results = TRUE)
-```
+#### Install and load
 
-```{r install, message=FALSE}
+```{r}
 if( !require( pkgButterfly ) ) {
   devtools::install_github( "rossholmberg/pkgButterfly" )
 } else {
@@ -17,12 +15,12 @@ if( !require( pkgButterfly ) ) {
 }
 ```
 
-
+#### Chlorophyll analysis
 
 The parameters to the `costCalcMaster` function are as follows.
 
 Central point from which foraging occurs (note areas of land will not be taken into account, so a coastline point is suitable here)
-```{r site setup}
+```{r}
 colony <- c( 145.2, -38.8 )
 central.foraging.area <- c( 145.014879, -38.752039 )
 ```
@@ -46,7 +44,7 @@ output.folder <- "~/Desktop/Rtemp/"
 
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
-```{r Run butterfly calculation}
+```{r}
 conductance.table <- costCalcMaster( output.folder = output.folder,
                                      # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
