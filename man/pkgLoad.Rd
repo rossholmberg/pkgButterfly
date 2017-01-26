@@ -6,7 +6,7 @@
 then load that package}
 \usage{
 pkgLoad(packages = "favourites", repos = "http://cran.csiro.au",
-  quietly = FALSE)
+  quietly = TRUE)
 }
 \arguments{
 \item{packages}{A vector of packages to be checked or installed.
