@@ -188,7 +188,7 @@ costCalcMaster <- function( currents.file,
   cat( "Downloading local area map, and converting to appropriate mask.\n" )
   land.mask <- landMask( lat = grid.df$lat,
                          lon = grid.df$lon,
-                         cores = coresToUse
+                         cores = 1L
   ) %>%
     data.table::setDT(.) %>%
     data.table::setorder( lon, -lat )
