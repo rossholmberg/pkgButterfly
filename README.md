@@ -30,14 +30,14 @@ currents.file <- "~/git/butterfly R script/dataset-global-reanalysis-phys-001-01
 A folder to be used to temporarily store data created during processing.
 
 ``` r
-output.folder <- "~/Desktop/Rtemp/"
+output.folder <- "C:/Users/rholmberg/Desktop/Rtemp/"
 ```
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 
 ``` r
 conductance.table <- costCalcMaster( output.folder = output.folder,
-                                     # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
+                                     #dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
                                      POI = central.foraging.area,
@@ -90,4 +90,13 @@ What we're left with is a data frame displaying dates and chlorophyll values.
 
 ``` r
 head( dates.chlorophyll )
+```
+
+We can plot the results:
+
+``` r
+library( ggplot2 )
+ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
+    geom_point() +
+    geom_smooth( method = "loess", span = 0.03 )
 ```
