@@ -17,3 +17,4 @@ Imports: data.table, raster, fields, rgdal, CircStats, maps, arrayhelpers, mapto
 Suggests: dplyr,
           ggplot2
 LinkingTo: Rcpp
+SystemRequirements: "Circuitscape" as per http://www.circuitscape.org/
