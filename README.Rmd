@@ -13,7 +13,7 @@ output:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "READMEfigs/readme-"
 )
 ```
 
@@ -21,9 +21,13 @@ knitr::opts_chunk$set(
 
 ### Install and load
 
-```{r, eval=FALSE}
+Install `pkgButterfly` from github if not installed yet.
+```{r install, eval=FALSE}
 devtools::install_github( "rossholmberg/pkgButterfly" )
+```
 
+Load the package.
+```{r load}
 library( pkgButterfly )
 ```
 
@@ -32,25 +36,25 @@ library( pkgButterfly )
 The parameters to the `costCalcMaster` function are as follows.
 
 Central point from which foraging occurs (note areas of land will not be taken into account, so a coastline point is suitable here)
-```{r, eval=FALSE}
+```{r set params 1, eval=FALSE}
 colony <- c( 145.2, -38.8 )
 central.foraging.area <- c( 145.014879, -38.752039 )
 ```
 
 A file containing currents data needs to be input to the calculations. This data will be used to calculate an "area of influence" (a.k.a "butterfly", due to a shape of which this area may take the form).
-```{r, eval=FALSE}
+```{r set params 2, eval=FALSE}
 currents.file <- "~/git/butterfly R script/dataset-global-reanalysis-phys-001-011-ran-it-cglors-monthly-u-v_1463479328704.nc"
 ```
 
 
 A folder to be used to temporarily store data created during processing.
-```{r, eval=FALSE}
+```{r set params 3, eval=FALSE}
 output.folder <- "C:/Users/rholmberg/Desktop/Rtemp/"
 ```
 
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
-```{r, eval=FALSE}
+```{r run costCalcMaster, eval=FALSE}
 conductance.table <- costCalcMaster( output.folder = output.folder,
                                      #dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
@@ -63,9 +67,12 @@ conductance.table <- costCalcMaster( output.folder = output.folder,
 )
 gc() # collect garbage to clear RAM
 ```
+```{r, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+conductance.table <- readRDS( "C:/Users/rholmberg/Desktop/condtable.rds" )
+```
 
 Have a look at one of the points in the butterfly over time.
-```{r, eval=FALSE}
+```{r plot butterfly, eval=TRUE}
 pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table ) - 2L ) * 0.5 )
 ```
 
@@ -83,7 +90,7 @@ chl.files <- c( paste0( input.folder, "erdSWchla8day_5e25_bcf8_7643.nc" ),
 ```
 
 Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated.
-```{r, eval=FALSE}
+```{r process chlorophyll, eval=FALSE}
 dates.chlorophyll <- plyr::ldply( .data = chl.files,
                                   .fun = chlorophyllCalc,
                                   data.variable = "chlorophyll",
@@ -99,14 +106,17 @@ dates.chlorophyll <- plyr::ldply( .data = chl.files,
   setnames( c( "date", "mean.chlorophyll" ) )
 gc() # collect garbage to clear RAM
 ```
+```{r, include=FALSE, echo=FALSE}
+dates.chlorophyll <- readRDS( "C:/Users/rholmberg/Desktop/dateschl.rds" )
+```
 
 What we're left with is a data frame displaying dates and chlorophyll values.
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 head( dates.chlorophyll )
 ```
 
 We can plot the results:
-```{r, eval=FALSE}
+```{r plot chlorophyll, eval=TRUE}
 library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
     geom_point() +

@@ -4,9 +4,15 @@ pkgButterfly
 
 ### Install and load
 
+Install `pkgButterfly` from github if not installed yet.
+
 ``` r
 devtools::install_github( "rossholmberg/pkgButterfly" )
+```
 
+Load the package.
+
+``` r
 library( pkgButterfly )
 ```
 
@@ -55,6 +61,8 @@ Have a look at one of the points in the butterfly over time.
 pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table ) - 2L ) * 0.5 )
 ```
 
+![](READMEfigs/readme-plot%20butterfly-1.png)
+
 We can pass a single file to the `chlorophyllCalc` function as a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
 
 ``` r
@@ -90,6 +98,13 @@ What we're left with is a data frame displaying dates and chlorophyll values.
 
 ``` r
 head( dates.chlorophyll )
+#>          date mean.chlorophyll
+#> 1: 1997-09-10        0.2573754
+#> 2: 1997-09-18        0.3184158
+#> 3: 1997-10-12        0.4190093
+#> 4: 1997-10-20        0.3525433
+#> 5: 1997-11-05        0.3534836
+#> 6: 1997-11-13        0.3707462
 ```
 
 We can plot the results:
@@ -100,3 +115,5 @@ ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll 
     geom_point() +
     geom_smooth( method = "loess", span = 0.03 )
 ```
+
+![](READMEfigs/readme-plot%20chlorophyll-1.png)
