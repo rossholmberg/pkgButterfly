@@ -4,8 +4,10 @@
 \alias{runCircuitscape}
 \title{runCircuitscape a function for externally applying the circuitscape algorithms to give data}
 \usage{
-runCircuitscape(i, costs.filelist, csrun.link, output.folder, source.asc.link,
-  sink.asc.link, dates, python.call = "python2.7")
+runCircuitscape(i, costs.filelist, csrun.link = NA, output.folder,
+  source.asc.link, sink.asc.link, dates,
+  function.call = ifelse(Sys.info()["sysname"] == "Windows",
+  "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"))
 }
 \arguments{
 \item{i}{integer, used to iterate over multiple files}
@@ -22,7 +24,7 @@ runCircuitscape(i, costs.filelist, csrun.link, output.folder, source.asc.link,
 
 \item{dates}{list of dates corresponding to time series datapoints}
 
-\item{python.call}{specify python call}
+\item{function.call}{specify python call or circuitscape call}
 }
 \value{
 none

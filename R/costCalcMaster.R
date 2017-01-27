@@ -382,11 +382,13 @@ costCalcMaster <- function( currents.file,
                source.asc.link = paste( output.folder, "source.asc", sep = "/" ),
                sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
                dates = dates,
-               python.call = ifelse( Sys.info()['sysname'] == "Windows",
-                                     'C:/Python27/python.exe',
+               function.call = ifelse( Sys.info()['sysname'] == "Windows",
+                                     'C:/"Program Files"/Circuitscape/cs_run.exe',
                                      'python2.7' ),
                .parallel = FALSE,
-               .progress = "none"
+               .progress = ifelse( Sys.info()['sysname'] == "Windows",
+                                   'text',
+                                   'none' )
   )
 
   # list all the files within the temporary directory

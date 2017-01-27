@@ -8,7 +8,7 @@
 #' @param source.asc.link "source" file for cuircuitscape
 #' @param sink.asc.link "sink" file for cuircuitscape
 #' @param dates list of dates corresponding to time series datapoints
-#' @param python.call specify python call
+#' @param function.call specify python call or circuitscape call
 #'
 #' @keywords circuitscape, ascii
 #'
@@ -18,13 +18,13 @@
 
 runCircuitscape <- function( i,
                              costs.filelist,
-                             csrun.link,
+                             csrun.link = NA,
                              output.folder,
                              source.asc.link,
                              sink.asc.link,
                              dates,
-                             python.call = ifelse( Sys.info()['sysname'] == "Windows",
-                                                   'C:/Python27/python.exe',
+                             function.call = ifelse( Sys.info()['sysname'] == "Windows",
+                                                   'C:/"Program Files"/Circuitscape/cs_run.exe',
                                                    'python2.7' ) ) {
 
   # Make an .ini file
@@ -47,10 +47,17 @@ runCircuitscape <- function( i,
        file = ini.filename,
        append = F )
 
-  # Run circuitscape via a python call
+  # Run circuitscape via a command line call
 
-  system( paste( python.call, csrun.link, paste0( output.folder, "/", ini.filename ) ),
-          intern = TRUE,
-          ignore.stdout = TRUE )
+  if( tail( unlist( strsplit( function.call, "\\." ) ), 1L ) != "exe" && !is.na( csrun.link ) ) {
+      system( paste( function.call, csrun.link, paste0( output.folder, "/", ini.filename ) ),
+              intern = TRUE,
+              ignore.stdout = FALSE )
+  } else {
+      system( paste( function.call, paste0( output.folder, "/", ini.filename ) ),
+              intern = TRUE,
+              ignore.stdout = FALSE )
+  }
+
 
 }
