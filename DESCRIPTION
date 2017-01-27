@@ -12,8 +12,8 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
 Imports: data.table, raster, fields, rgdal, CircStats, maps, arrayhelpers, maptools,
-         Rcpp, parallel, doParallel, plyr, magrittr, readr, geosphere, ncdf4,
-         rgeos, sp, circular, stats, gstat, abind
+         Rcpp, parallel, doParallel, plyr, magrittr, readr (>= 0.2.2.9000), geosphere,
+         ncdf4, rgeos, sp, circular, stats, gstat, abind
 Suggests: dplyr,
           ggplot2
 LinkingTo: Rcpp
