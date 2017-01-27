@@ -382,7 +382,9 @@ costCalcMaster <- function( currents.file,
                source.asc.link = paste( output.folder, "source.asc", sep = "/" ),
                sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
                dates = dates,
-               python.call = "python2.7",
+               python.call = ifelse( Sys.info()['sysname'] == "Windows",
+                                     'C:/Python27/python.exe',
+                                     'python2.7' ),
                .parallel = FALSE,
                .progress = "none"
   )

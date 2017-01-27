@@ -16,7 +16,16 @@
 #'
 #' @return none
 
-runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, source.asc.link, sink.asc.link, dates, python.call = 'python2.7' ) {
+runCircuitscape <- function( i,
+                             costs.filelist,
+                             csrun.link,
+                             output.folder,
+                             source.asc.link,
+                             sink.asc.link,
+                             dates,
+                             python.call = ifelse( Sys.info()['sysname'] == "Windows",
+                                                   'C:/Python27/python.exe',
+                                                   'python2.7' ) ) {
 
   # Make an .ini file
   CS_ini <- paste("[circuitscape options]",
@@ -40,7 +49,7 @@ runCircuitscape <- function( i, costs.filelist, csrun.link, output.folder, sourc
 
   # Run circuitscape via a python call
 
-  system( paste( 'python2.7', csrun.link, paste0( output.folder, "/", ini.filename ) ),
+  system( paste( python.call, csrun.link, paste0( output.folder, "/", ini.filename ) ),
           intern = TRUE,
           ignore.stdout = TRUE )
 
