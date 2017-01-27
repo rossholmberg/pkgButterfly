@@ -63,7 +63,7 @@ pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table )
 
 ![](READMEfigs/readme-plot%20butterfly-1.png)
 
-We can pass a single file to the `chlorophyllCalc` function as a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
+We can pass a single file to the `chlorophyllCalc` function at a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
 
 ``` r
 library( magrittr )
@@ -75,7 +75,7 @@ chl.files <- c( paste0( input.folder, "erdSWchla8day_5e25_bcf8_7643.nc" ),
                 paste0( input.folder, "erdMH1chla8day_4d10_c7b5_5ad5.nc" ) )
 ```
 
-Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated.
+Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
 
 ``` r
 dates.chlorophyll <- plyr::ldply( .data = chl.files,
@@ -107,7 +107,7 @@ head( dates.chlorophyll )
 #> 6: 1997-11-13        0.3707462
 ```
 
-We can plot the results:
+We can now plot the results:
 
 ``` r
 library( ggplot2 )
@@ -117,3 +117,5 @@ ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll 
 ```
 
 ![](READMEfigs/readme-plot%20chlorophyll-1.png)
+
+The above shows interpolated chlorophyll level over time, for the specified area of interest (a radius of `foraging.distance` km around `POI`).
