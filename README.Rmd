@@ -13,7 +13,7 @@ output:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "READMEfigs/readme-"
+  fig.path = "READMEfigs/"
 )
 ```
 
@@ -72,7 +72,7 @@ conductance.table <- readRDS( "C:/Users/rholmberg/Desktop/condtable.rds" )
 ```
 
 Have a look at one of the points in the butterfly over time.
-```{r plot butterfly, eval=TRUE}
+```{r plotButterfly, eval=TRUE}
 pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table ) - 2L ) * 0.5 )
 ```
 
@@ -116,7 +116,7 @@ head( dates.chlorophyll )
 ```
 
 We can now plot the results:
-```{r plot chlorophyll, eval=TRUE}
+```{r plotChlorophyll, eval=TRUE}
 library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
     geom_point() +

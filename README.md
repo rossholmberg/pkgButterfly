@@ -61,7 +61,7 @@ Have a look at one of the points in the butterfly over time.
 pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table ) - 2L ) * 0.5 )
 ```
 
-![](READMEfigs/readme-plot%20butterfly-1.png)
+![](READMEfigs/plotButterfly-1.png)
 
 We can pass a single file to the `chlorophyllCalc` function at a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
 
@@ -116,6 +116,6 @@ ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll 
     geom_smooth( method = "loess", span = 0.03 )
 ```
 
-![](READMEfigs/readme-plot%20chlorophyll-1.png)
+![](READMEfigs/plotChlorophyll-1.png)
 
 The above shows interpolated chlorophyll level over time, for the specified area of interest (a radius of `foraging.distance` km around `POI`).
