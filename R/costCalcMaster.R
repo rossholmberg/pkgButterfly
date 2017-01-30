@@ -11,7 +11,9 @@
 #' @param foraging.distance A distance in km to consider as the area of interest from the POI.
 #' @param cell.size Resolution (in degrees) to create for output. Note data will be interpolated from input.
 #' @param split.quant The point at which to split for areas of influence (0.75 takes the TOP 25\% influence), as per Afán et al 2015
-# #' @param csrun.link complete link to `csrun.py` file, included as part of the CircuitScape package.
+#' @param circuitscape.link complete link to executable file to be used for running Circuitscape.
+#' Under Windows, this can be a `.exe` file for Circuitscape itself. Under *nix systems, this can be a link to python,
+#' under which Circuitscape will be called.
 #' @param parallel FALSE will not use multi-threading, TRUE will guess at an optimal number of cores based on processor,
 #' integer value specifies a number of cores to use when multi-threading tasks.
 #'
@@ -37,7 +39,9 @@ costCalcMaster <- function( currents.file,
                             foraging.distance,
                             cell.size = 0.1,
                             split.quant = 0.75,
-                            # csrun.link,
+                            circuitscape.link = ifelse( Sys.info()['sysname'] == "Windows",
+                                                        'C:/"Program Files"/Circuitscape/cs_run.exe',
+                                                        'python2.7' ),
                             parallel ) {
 
   start.time <- as.integer( Sys.time() )
@@ -373,6 +377,11 @@ costCalcMaster <- function( currents.file,
 
   cat( python.commands, file = python.file, append = FALSE )
 
+  if( is.na( circuitscape.link ) || is.null( circuitscape.link ) ) {
+      circuitscape.link <- ifelse( Sys.info()['sysname'] == "Windows",
+                                   'C:/"Program Files"/Circuitscape/cs_run.exe',
+                                   'python2.7' )
+  }
 
   plyr::l_ply( .data = seq_along( costs.filelist ),
                .fun = runCircuitscape,
@@ -382,9 +391,7 @@ costCalcMaster <- function( currents.file,
                source.asc.link = paste( output.folder, "source.asc", sep = "/" ),
                sink.asc.link = paste( output.folder, "sink.asc", sep = "/" ),
                dates = dates,
-               function.call = ifelse( Sys.info()['sysname'] == "Windows",
-                                     'C:/"Program Files"/Circuitscape/cs_run.exe',
-                                     'python2.7' ),
+               function.call = circuitscape.link,
                .parallel = FALSE,
                .progress = ifelse( Sys.info()['sysname'] == "Windows",
                                    'text',

@@ -6,7 +6,9 @@
 \usage{
 costCalcMaster(currents.file, dates.range = NA, buffer.days = 10L,
   output.folder, POI, foraging.distance, cell.size = 0.1,
-  split.quant = 0.75, parallel)
+  split.quant = 0.75, circuitscape.link = ifelse(Sys.info()["sysname"] ==
+  "Windows", "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"),
+  parallel)
 }
 \arguments{
 \item{currents.file}{complete link to .nc data file containing ocean currents data}
@@ -25,6 +27,10 @@ A temporary folder will be created within this specified folder, and deleted whe
 \item{cell.size}{Resolution (in degrees) to create for output. Note data will be interpolated from input.}
 
 \item{split.quant}{The point at which to split for areas of influence (0.75 takes the TOP 25\% influence), as per Afán et al 2015}
+
+\item{circuitscape.link}{complete link to executable file to be used for running Circuitscape.
+Under Windows, this can be a `.exe` file for Circuitscape itself. Under *nix systems, this can be a link to python,
+under which Circuitscape will be called.}
 
 \item{parallel}{FALSE will not use multi-threading, TRUE will guess at an optimal number of cores based on processor,
 integer value specifies a number of cores to use when multi-threading tasks.}
