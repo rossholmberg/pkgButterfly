@@ -43,7 +43,7 @@ Run the main "butterfly" analysis. This can be a very long process. Expect this 
 
 ``` r
 conductance.table <- costCalcMaster( output.folder = output.folder,
-                                     #dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
+                                     dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
                                      POI = central.foraging.area,
