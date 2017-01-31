@@ -50,6 +50,9 @@ conductance.table <- costCalcMaster( output.folder = output.folder,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
                                      split.quant = 0.75,
+                                     circuitscape.link = ifelse( Sys.info()['sysname'] == "Windows",
+                                                                 'C:/"Program Files"/Circuitscape/cs_run.exe',
+                                                                 'python2.7' ),
                                      parallel = 6L
 )
 gc() # collect garbage to clear RAM
