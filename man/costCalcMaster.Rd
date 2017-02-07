@@ -4,14 +4,28 @@
 \alias{costCalcMaster}
 \title{This function takes a datafile of ocean currents, and uses it to process a dynamic area of influence.}
 \usage{
-costCalcMaster(currents.file, dates.range = NA, buffer.days = 10L,
-  output.folder, POI, foraging.distance, cell.size = 0.1,
-  split.quant = 0.75, circuitscape.link = ifelse(Sys.info()["sysname"] ==
-  "Windows", "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"),
-  parallel)
+costCalcMaster(currents.file, lat.variableName = "lat",
+  lon.variableName = "lon", depth.variableName = "depth",
+  time.variableName = "time", current.variableNames = c("ZonalCurrent",
+  "MeridionalCurrent"), dates.range = NA, buffer.days = 10L, output.folder,
+  POI, foraging.distance, cell.size = 0.1, split.quant = 0.75,
+  circuitscape.link = ifelse(Sys.info()["sysname"] == "Windows",
+  "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"), parallel)
 }
 \arguments{
 \item{currents.file}{complete link to .nc data file containing ocean currents data}
+
+\item{lat.variableName}{character name of latitude variable in .nc currents.file. Default "lat"}
+
+\item{lon.variableName}{character name of longitude variable in .nc currents.file. Default "lon"}
+
+\item{depth.variableName}{character name of depth variable in .nc currents.file. Default "depth"}
+
+\item{time.variableName}{character name of time variable in .nc currents.file. Default "time"}
+
+\item{current.variableNames}{character vector (length 2), names of current variables in .nc currents.file.
+Element 1 is for the zonal current values, element 2 is for the meridional current values.
+Default c( "ZonalCurrent", "MeridionalCurrent" )}
 
 \item{dates.range}{range of dates to subset from input data. If NA, all dates in input file are used.}
 

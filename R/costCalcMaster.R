@@ -3,6 +3,13 @@
 #' @description The process used is as per Afán et al 2015
 #'
 #' @param currents.file complete link to .nc data file containing ocean currents data
+#' @param lat.variableName character name of latitude variable in .nc currents.file. Default "lat"
+#' @param lon.variableName character name of longitude variable in .nc currents.file. Default "lon"
+#' @param depth.variableName character name of depth variable in .nc currents.file. Default "depth"
+#' @param time.variableName character name of time variable in .nc currents.file. Default "time"
+#' @param current.variableNames character vector (length 2), names of current variables in .nc currents.file.
+#' Element 1 is for the zonal current values, element 2 is for the meridional current values.
+#' Default c( "ZonalCurrent", "MeridionalCurrent" )
 #' @param dates.range range of dates to subset from input data. If NA, all dates in input file are used.
 #' @param buffer.days buffer around requested date to search for data
 #' @param output.folder complete link to a folder to use for temporary files during processing.
@@ -32,6 +39,11 @@
 
 
 costCalcMaster <- function( currents.file,
+                            lat.variableName = "lat",
+                            lon.variableName = "lon",
+                            depth.variableName = "depth",
+                            time.variableName = "time",
+                            current.variableNames = c( "ZonalCurrent", "MeridionalCurrent" ),
                             dates.range = NA,
                             buffer.days = 10L,
                             output.folder,
@@ -78,29 +90,6 @@ costCalcMaster <- function( currents.file,
     rm( output.folder.try )
   }
 
-  # set up multi-threading on Unix-alike systems, or disable it on Windows systems
-  # if( "Windows" %in% Sys.info() ) {
-  #     print( "Sorry, no support for parallel processing on Windows.")
-  #     coresToUse <- 1L
-  #     parallel <- FALSE
-  #     progress <- "text"
-  # } else if( !parallel || parallel == 1 ) {
-  #     print( "Running in single-thread mode." )
-  #     coresToUse <- 1L
-  #     parallel <- FALSE
-  #     progress <- "text"
-  # } else {
-  #     if( !is.numeric( parallel ) ) {
-  #         coresToUse <- coresToUse()
-  #     } else {
-  #         coresToUse <- parallel
-  #     }
-  #     print( paste( "Multi-threading where possible across", coresToUse, "threads." ) )
-  #     doMC::registerDoMC( cores = coresToUse )
-  #     parallel <- TRUE
-  #     progress = "none"
-  # }
-
   if( is.numeric( parallel ) && parallel > 1L ) {
     coresToUse <- parallel
     parallel <- TRUE
@@ -122,22 +111,22 @@ costCalcMaster <- function( currents.file,
   aa <- ncdf4::nc_open( currents.file )
 
   # extract the different variables (metadata) from the .nc:
-  depth <- ncdf4::ncvar_get( aa, varid = "depth" )
-  lat <- ncdf4::ncvar_get( aa, varid = "lat" )
-  lon <- ncdf4::ncvar_get( aa, varid = "lon" )
+  depth <- ncdf4::ncvar_get( aa, varid = depth.variableName )
+  lat <- ncdf4::ncvar_get( aa, varid = lat.variableName )
+  lon <- ncdf4::ncvar_get( aa, varid = lon.variableName )
 
   # extract a spatial range
   latRange <- range( lat )
   lonRange <- range( lon )
 
   # retrieve and convert dates
-  dates <- ncdf4::ncvar_get( aa, varid = "time" ) %>%
+  dates <- ncdf4::ncvar_get( aa, varid = time.variableName ) %>%
     as.Date( origin = "1979-01-01" )
 
   cat( "Converting currents to appropriate format.\n" )
   # retrieve and convert current data
-  currents <- convertCurrents( zonal.current = ncdf4::ncvar_get( aa, varid = "ZonalCurrent" ),
-                               meridional.current = ncdf4::ncvar_get( aa, varid = "MeridionalCurrent" ) )
+  currents <- convertCurrents( zonal.current = ncdf4::ncvar_get( aa, varid = current.variableNames[1] ),
+                               meridional.current = ncdf4::ncvar_get( aa, varid = current.variableNames[2] ) )
 
   wdir <- currents[["direction"]]
   wspeed <- currents[["speed"]]
