@@ -68,13 +68,13 @@ costCalcMaster <- function( currents.file,
     ncvarnames <- nc_variableNames( currents.file )
     if( is.na( lat.variableName ) ) {
         lat.variableName <- ncvarnames[ grepl( "lat", ncvarnames, ignore.case = TRUE ) ]
-        if( length( lat.variableName ) != 2L ) {
+        if( length( lat.variableName ) != 1L ) {
             stop( "Latitude variable could not be located automatically. Please specify in function call." )
         }
     }
     if( is.na( lon.variableName ) ) {
         lon.variableName <- ncvarnames[ grepl( "lon", ncvarnames, ignore.case = TRUE ) ]
-        if( length( lon.variableName ) != 2L ) {
+        if( length( lon.variableName ) != 1L ) {
             stop( "Longitude variable could not be located automatically. Please specify in function call." )
         }
     }
