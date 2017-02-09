@@ -418,7 +418,7 @@ costCalcMaster <- function( currents.file,
     # output the ascii files, ready for circuitscape
     for( i in seq_len( ncol( cost.matrix ) ) ) {
         df2Ascii( lat = grid.df[,lat], lon = grid.df[,lon], data = cost.matrix[,i],
-                  file = paste0( output.folder, "/cost_", as.character( dates[i], "%Y%m%d" ), ".asc" ),
+                  file = paste0( output.folder, "/cost_", as.character( dates[i] ), ".asc" ),
                   noDataValue = noDataValue )
     }
 
@@ -525,8 +525,7 @@ costCalcMaster <- function( currents.file,
         sapply( tail, 1L ) %>%
         strsplit( split = "_" ) %>%
         sapply( "[", 2L ) %>%
-        trimws() %>%
-        as.Date( format = "%Y%m%d" )
+        trimws()
 
     # We will first construct the dynamic areas of influence (based on ocean currents) and used to later extract CHL
     cat( "Processing conductance data.\n" )
