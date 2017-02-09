@@ -7,8 +7,9 @@
 costCalcMaster(currents.file, lat.variableName = "lat",
   lon.variableName = "lon", depth.variableName = "depth",
   time.variableName = "time", current.variableNames = c("ZonalCurrent",
-  "MeridionalCurrent"), dates.range = NA, buffer.days = 10L, output.folder,
-  POI, foraging.distance, cell.size = 0.1, split.quant = 0.75,
+  "MeridionalCurrent"), depth.touse = NULL, depth.dimension = NULL,
+  dates.range = NA, buffer.days = 10L, output.folder, POI,
+  foraging.distance, cell.size = 0.1, split.quant = 0.75,
   circuitscape.link = ifelse(Sys.info()["sysname"] == "Windows",
   "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"), parallel)
 }
@@ -26,6 +27,11 @@ costCalcMaster(currents.file, lat.variableName = "lat",
 \item{current.variableNames}{character vector (length 2), names of current variables in .nc currents.file.
 Element 1 is for the zonal current values, element 2 is for the meridional current values.
 Default c( "ZonalCurrent", "MeridionalCurrent" )}
+
+\item{depth.touse}{numerical depth value. Which available depth dataset (if more than one) is to be analysed here?}
+
+\item{depth.dimension}{integer value specifying which dimension of the arrays in the .nc file represents
+"depth". This will be used to subset only the depth to be analysed here.}
 
 \item{dates.range}{range of dates to subset from input data. If NA, all dates in input file are used.}
 
