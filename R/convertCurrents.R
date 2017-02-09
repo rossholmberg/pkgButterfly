@@ -14,7 +14,7 @@ convertCurrents <- function( zonal.current, meridional.current ) {
     identical( dim( zonal.current ), dim( meridional.current ) )
   )
 
-  # through this loop we will use information on u and v to calculate water speed and direction on a pixel basis and for all available dates
+  # use information on u and v to calculate water speed and direction on a pixel basis and for all available dates
   # water direction. Angles range from -180 a 180
   water.direction <- atan2( zonal.current, meridional.current ) * 45.0 / atan( 1.0 )
 

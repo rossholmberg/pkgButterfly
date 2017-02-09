@@ -4,14 +4,14 @@
 \alias{costCalcMaster}
 \title{This function takes a datafile of ocean currents, and uses it to process a dynamic area of influence.}
 \usage{
-costCalcMaster(currents.file, lat.variableName = "lat",
-  lon.variableName = "lon", depth.variableName = "depth",
-  time.variableName = "time", current.variableNames = c("ZonalCurrent",
-  "MeridionalCurrent"), depth.touse = NULL, depth.dimension = NULL,
-  dates.range = NA, buffer.days = 10L, output.folder, POI,
-  foraging.distance, cell.size = 0.1, split.quant = 0.75,
-  circuitscape.link = ifelse(Sys.info()["sysname"] == "Windows",
-  "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"), parallel)
+costCalcMaster(currents.file, lat.variableName = NA_character_,
+  lon.variableName = NA_character_, depth.variableName = NA_character_,
+  time.variableName = NA_character_, current.variableNames = NA_character_,
+  depth.touse = NULL, depth.dimension = NULL, dates.range = NA,
+  buffer.days = 10L, output.folder, POI, foraging.distance, cell.size = 0.1,
+  split.quant = 0.75, circuitscape.link = ifelse(Sys.info()["sysname"] ==
+  "Windows", "C:/\\"Program Files\\"/Circuitscape/cs_run.exe", "python2.7"),
+  parallel)
 }
 \arguments{
 \item{currents.file}{complete link to .nc data file containing ocean currents data}
