@@ -30,8 +30,9 @@ Default c( "ZonalCurrent", "MeridionalCurrent" )}
 
 \item{depth.touse}{numerical depth value. Which available depth dataset (if more than one) is to be analysed here?}
 
-\item{depth.dimension}{integer value specifying which dimension of the arrays in the .nc file represents
-"depth". This will be used to subset only the depth to be analysed here.}
+\item{depth.dimension}{integer value specifying which dimension of the currents arrays in the .nc file represents
+"depth". This will be used to subset only the depth to be analysed here. depth.dimension is treated in the same way
+as a MARGIN value, for example a value of 3 represents x[,,i].}
 
 \item{dates.range}{range of dates to subset from input data. If NA, all dates in input file are used.}
 

@@ -11,8 +11,9 @@
 #' Element 1 is for the zonal current values, element 2 is for the meridional current values.
 #' Default c( "ZonalCurrent", "MeridionalCurrent" )
 #' @param depth.touse numerical depth value. Which available depth dataset (if more than one) is to be analysed here?
-#' @param depth.dimension integer value specifying which dimension of the arrays in the .nc file represents
-#' "depth". This will be used to subset only the depth to be analysed here.
+#' @param depth.dimension integer value specifying which dimension of the currents arrays in the .nc file represents
+#' "depth". This will be used to subset only the depth to be analysed here. depth.dimension is treated in the same way
+#' as a MARGIN value, for example a value of 3 represents x[,,i].
 #' @param dates.range range of dates to subset from input data. If NA, all dates in input file are used.
 #' @param buffer.days buffer around requested date to search for data
 #' @param output.folder complete link to a folder to use for temporary files during processing.
@@ -272,7 +273,7 @@ costCalcMaster <- function( currents.file,
     cost_sink <- costFun( water.direction = wdir,
                           water.speed = wspeed,
                           angle.sink = angle_sink )
-    # fields::image.plot( cost_sink[,,1] )
+    # fields::image.plot( cost_sink[[1]] )
     rm( wdir, wspeed )
     gc()
 
@@ -281,7 +282,7 @@ costCalcMaster <- function( currents.file,
     # we will construct a dataframe with three variables: lon, lat and cost
     # costs will be latter extracted in a loop. We first extract lon and lat
 
-    df_cost <- data.frame( apply( cost_sink, 3, as.vector ) )
+    df_cost <- data.frame( lapply( cost_sink, as.vector ) )
     names( df_cost ) <- dates
 
     rm( cost_sink )
