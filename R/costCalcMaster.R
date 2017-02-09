@@ -43,11 +43,11 @@
 
 
 costCalcMaster <- function( currents.file,
-                            lat.variableName = NA_character_,
-                            lon.variableName = NA_character_,
-                            depth.variableName = NA_character_,
-                            time.variableName = NA_character_,
-                            current.variableNames = NA_character_,
+                            lat.variableName = NA,
+                            lon.variableName = NA,
+                            depth.variableName = NA,
+                            time.variableName = NA,
+                            current.variableNames = NA,
                             depth.touse = NULL,
                             depth.dimension = NULL,
                             dates.range = NA,
@@ -78,7 +78,7 @@ costCalcMaster <- function( currents.file,
             stop( "Longitude variable could not be located automatically. Please specify in function call." )
         }
     }
-    if( is.na( current.variableNames ) ) {
+    if( any( is.na( current.variableNames ) ) ) {
         current.variableNames <- c( ncvarnames[ grepl( "^zvel|^zonal", ncvarnames, ignore.case = TRUE ) ],
                                    ncvarnames[ grepl( "^mvel|^meridional", ncvarnames, ignore.case = TRUE ) ] )
         if( length( current.variableNames ) != 2L ) {
