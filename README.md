@@ -30,7 +30,7 @@ central.foraging.area <- c( 145.014879, -38.752039 )
 A file containing currents data needs to be input to the calculations. This data will be used to calculate an "area of influence" (a.k.a "butterfly", due to a shape of which this area may take the form).
 
 ``` r
-currents.file <- "~/git/butterfly R script/dataset-global-reanalysis-phys-001-011-ran-it-cglors-monthly-u-v_1463479328704.nc"
+currents.file <- "/media/pinp/Storage/dataset-armor-3d-v4-cmems-v2_1486508039772.nc"
 ```
 
 A folder to be used to temporarily store data created during processing.
@@ -39,23 +39,58 @@ A folder to be used to temporarily store data created during processing.
 output.folder <- "C:/Users/rholmberg/Desktop/Rtemp/"
 ```
 
+If variable names are logical within the .nc file, `costCalcMaster` will find them automatically. If any are strangely names, we may need to specify them in the function call. To get a list of variable names within the file, we can run:
+
+``` r
+nc_variableNames( currents.file )
+#> [1] "time"        "depth"       "latitude"    "longitude"   "zvelocity"  
+#> [6] "height"      "mvelocity"   "salinity"    "temperature"
+```
+
+Note the names in this file are fairly logical. We have "lat", "lon", "ZonalCurrent", and "MeridionalCurrent". There is also a "depth" variable here, meaning there may be more than one depth value available. We will only analyse one depth value (multiple values can be analysed by calling `costCalcMaster` within, for example, `lapply` or similar). If more than one depth value is available, it will be necessary to specify which depth to use in the analysis.
+
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 
 ``` r
 conductance.table <- costCalcMaster( output.folder = output.folder,
-                                     dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
+                                     # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
+                                     depth.touse = 0,
+                                     depth.dimension = 3,
                                      POI = central.foraging.area,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
-                                     split.quant = 0.75,
                                      circuitscape.link = ifelse( Sys.info()['sysname'] == "Windows",
                                                                  'C:/"Program Files"/Circuitscape/cs_run.exe',
                                                                  'python2.7' ),
                                      parallel = 6L
 )
 gc() # collect garbage to clear RAM
+```
+
+In some cases, the "dates" values, which now reside in the column names of `conductance.table`, are not in a logical format. It may be a good idea to change these accordingly. Here we use the `ncdf4` package, and discover that the time values are formatted as "hours since 1950-01-01":
+
+``` r
+aa <- ncdf4::nc_open( currents.file )
+names( aa )
+#>  [1] "filename"    "writable"    "id"          "safemode"    "format"     
+#>  [6] "is_GMT"      "groups"      "fqgn2Rindex" "ndims"       "natts"      
+#> [11] "dim"         "unlimdimid"  "nvars"       "var"
+aa$dim$time$units
+#> [1] "hours since 1950-01-01"
+ncdf4::nc_close( aa )
+```
+
+We can use that to replace the current column names to useful date values. Note we're only changing the values for columns starting from 3, since the first 2 columns are "lat" and "lon"
+
+``` r
+library( magrittr )
+names( conductance.table )[ 3:ncol( conductance.table ) ] %<>%
+    as.numeric() %>%
+    divide_by( 24 ) %>%
+    as.Date( origin = "1950-01-01" ) %>%
+    as.character()
 ```
 
 Have a look at one of the points in the butterfly over time.
@@ -102,12 +137,12 @@ What we're left with is a data frame displaying dates and chlorophyll values.
 ``` r
 head( dates.chlorophyll )
 #>          date mean.chlorophyll
-#> 1: 1997-09-10        0.2573754
-#> 2: 1997-09-18        0.3184158
-#> 3: 1997-10-12        0.4190093
-#> 4: 1997-10-20        0.3525433
-#> 5: 1997-11-05        0.3534836
-#> 6: 1997-11-13        0.3707462
+#> 1: 2013-12-23        0.4388904
+#> 2: 2013-12-29        0.3825137
+#> 3: 2014-01-05        0.3940464
+#> 4: 2014-01-13        0.4319269
+#> 5: 2014-01-21        0.4566485
+#> 6: 2014-01-29        0.5189684
 ```
 
 We can now plot the results:
@@ -116,7 +151,7 @@ We can now plot the results:
 library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
     geom_point() +
-    geom_smooth( method = "loess", span = 0.03 )
+    geom_smooth( method = "loess", span = 0.1 )
 ```
 
 ![](READMEfigs/plotChlorophyll-1.png)

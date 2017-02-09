@@ -42,8 +42,8 @@ central.foraging.area <- c( 145.014879, -38.752039 )
 ```
 
 A file containing currents data needs to be input to the calculations. This data will be used to calculate an "area of influence" (a.k.a "butterfly", due to a shape of which this area may take the form).
-```{r set params 2, eval=FALSE}
-currents.file <- "~/git/butterfly R script/dataset-global-reanalysis-phys-001-011-ran-it-cglors-monthly-u-v_1463479328704.nc"
+```{r set params 2, eval=TRUE}
+currents.file <- "/media/pinp/Storage/dataset-armor-3d-v4-cmems-v2_1486508039772.nc"
 ```
 
 
@@ -52,17 +52,24 @@ A folder to be used to temporarily store data created during processing.
 output.folder <- "C:/Users/rholmberg/Desktop/Rtemp/"
 ```
 
+If variable names are logical within the .nc file, `costCalcMaster` will find them automatically. If any are strangely names, we may need to specify them in the function call. To get a list of variable names within the file, we can run:
+```{r}
+nc_variableNames( currents.file )
+```
+
+Note the names in this file are fairly logical. We have "lat", "lon", "ZonalCurrent", and "MeridionalCurrent". There is also a "depth" variable here, meaning there may be more than one depth value available. We will only analyse one depth value (multiple values can be analysed by calling `costCalcMaster` within, for example, `lapply` or similar). If more than one depth value is available, it will be necessary to specify which depth to use in the analysis.
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 ```{r run costCalcMaster, eval=FALSE}
 conductance.table <- costCalcMaster( output.folder = output.folder,
-                                     dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
+                                     # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
+                                     depth.touse = 0,
+                                     depth.dimension = 3,
                                      POI = central.foraging.area,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
-                                     split.quant = 0.75,
                                      circuitscape.link = ifelse( Sys.info()['sysname'] == "Windows",
                                                                  'C:/"Program Files"/Circuitscape/cs_run.exe',
                                                                  'python2.7' ),
@@ -70,15 +77,36 @@ conductance.table <- costCalcMaster( output.folder = output.folder,
 )
 gc() # collect garbage to clear RAM
 ```
-```{r, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
-conductance.table <- readRDS( "C:/Users/rholmberg/Desktop/condtable.rds" )
+```{r, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE, eval=FALSE}
+saveRDS( conductance.table, "~/Desktop/condtable.rds" )
 ```
+```{r, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+conductance.table <- readRDS( "~/Desktop/condtable.rds" )
+```
+
+In some cases, the "dates" values, which now reside in the column names of `conductance.table`, are not in a logical format. It may be a good idea to change these accordingly. Here we use the `ncdf4` package, and discover that the time values are formatted as "hours since 1950-01-01":
+```{r}
+aa <- ncdf4::nc_open( currents.file )
+names( aa )
+aa$dim$time$units
+ncdf4::nc_close( aa )
+```
+
+We can use that to replace the current column names to useful date values. Note we're only changing the values for columns starting from 3, since the first 2 columns are "lat" and "lon"
+```{r}
+library( magrittr )
+names( conductance.table )[ 3:ncol( conductance.table ) ] %<>%
+    as.numeric() %>%
+    divide_by( 24 ) %>%
+    as.Date( origin = "1950-01-01" ) %>%
+    as.character()
+```
+
 
 Have a look at one of the points in the butterfly over time.
 ```{r plotButterfly, eval=TRUE}
 pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table ) - 2L ) * 0.5 )
 ```
-
 
 
 We can pass a single file to the `chlorophyllCalc` function at a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
@@ -109,8 +137,11 @@ dates.chlorophyll <- plyr::ldply( .data = chl.files,
   setnames( c( "date", "mean.chlorophyll" ) )
 gc() # collect garbage to clear RAM
 ```
+```{r, include=FALSE, echo=FALSE, eval=FALSE}
+saveRDS( dates.chlorophyll, "~/Desktop/dateschl.rds" )
+```
 ```{r, include=FALSE, echo=FALSE}
-dates.chlorophyll <- readRDS( "C:/Users/rholmberg/Desktop/dateschl.rds" )
+dates.chlorophyll <- readRDS( "~/Desktop/dateschl.rds" )
 ```
 
 What we're left with is a data frame displaying dates and chlorophyll values.
@@ -123,7 +154,7 @@ We can now plot the results:
 library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
     geom_point() +
-    geom_smooth( method = "loess", span = 0.03 )
+    geom_smooth( method = "loess", span = 0.1 )
 ```
 
 
