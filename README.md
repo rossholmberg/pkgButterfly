@@ -186,7 +186,9 @@ ggplot( data = dates.chlorophyll, mapping = aes( x = as.Date( date ), y = mean.c
 
 The above shows interpolated chlorophyll level over time, for the specified area of interest (a radius of `foraging.distance` km around `POI`).
 
-Note that what we've done so far is to compute a "Butterfly" area, then apply that area to interpolate available Chlorophyll data in the most meaningful way. If we so wish, we can apply the butterfly area to variables other than Chlorophyll. For example, the file referenced here contains data for "primary production" as well:
+#### Analysis of other variables
+
+Note that what we've done so far is to compute a "Butterfly" area, then apply that area to interpolate available Chlorophyll data in the most meaningful way. If we so wish, we can apply the butterfly area to variables other than Chlorophyll. For example, the file referenced here contains data for "net\_primary\_productivity\_of\_carbon" as well:
 
 ``` r
 dates.PP <- plyr::ldply( .data = chl.file,
@@ -217,3 +219,35 @@ ggplot( data = dates.PP, mapping = aes( x = as.Date( date ), y = mean.pp ) ) +
 ```
 
 ![](READMEfigs/plotPrimaryProduction-1.png)
+
+Likewise, we have included in this file the data for "mole\_concentration\_of\_phytoplankton\_expressed\_as\_carbon\_in\_sea\_water":
+
+``` r
+dates.Phyto <- plyr::ldply( .data = chl.file,
+                         .fun = chlorophyllCalc,
+                         data.variable = "PHYC",
+                         depth.dimension = NULL,
+                         depth.touse = NULL,
+                         timeseries = times,
+                         conductance.data = conductance.table,
+                         max.day.diff = 30,
+                         .parallel = FALSE ) %>%
+    setDT() %>%
+    # for duplicates (useful in cases where more than one file has been analysed) take an average
+    .[ , mean( mean.chlorophyll ), by = date ] %>%
+    # sort by date
+    setorder( date ) %>%
+    # make sure the column names are appropriate
+    setnames( c( "date", "mean.phyto" ) )
+gc() # collect garbage to clear RAM
+```
+
+``` r
+library( ggplot2 )
+ggplot( data = dates.Phyto, mapping = aes( x = as.Date( date ), y = mean.phyto ) ) +
+    geom_point() +
+    geom_smooth( method = "loess", span = 0.2 ) +
+    ggtitle( "Mean Phytoplankton, based on local dynamic Butterfly" )
+```
+
+![](READMEfigs/plotPhytoplankton-1.png)
