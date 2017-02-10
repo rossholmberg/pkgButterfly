@@ -63,10 +63,15 @@ meanChlorophyll <- function( date,
   conductance.threshold <- sort( conductance.thisdate[['conductance']] )[ round( nrow( conductance.thisdate ) * cond.threshold ) ]
   conductance.thisdate[ is.na( conductance ) | conductance < conductance.threshold, conductance := NA_real_ ]
 
+  # make sure both tables are sorted appropriately
+  setorder( conductance.thisdate, lon, -lat )
+  setorder( chlorophyll.thisdate, lon, -lat )
+
   # now merge the two tables
   setkey( conductance.thisdate, lat, lon )
-  setkey( chlorophyll.thisdate, cond.lat, cond.lon )
-  chlorophyll.thisdate <- conductance.thisdate[ chlorophyll.thisdate ]
+  setkey( chlorophyll.thisdate, lat, lon )
+  chlorophyll.thisdate <- merge.data.frame( conductance.thisdate, chlorophyll.thisdate, by = c( "lat", "lon" ) )
+  setDT( chlorophyll.thisdate )
 
 
   # and extract a mean chlorophyll value for the specified date
