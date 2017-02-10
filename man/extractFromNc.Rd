@@ -4,12 +4,28 @@
 \alias{extractFromNc}
 \title{extractFromNc get data from a .nc file}
 \usage{
-extractFromNc(file, data.variable)
+extractFromNc(file, data.variable, lat.varname = NULL, lon.varname = NULL,
+  timeseries = NULL, time.varname = NULL, depth.varname = NULL,
+  depth.dimension = NULL, depth.touse = NULL)
 }
 \arguments{
 \item{file}{.nc file containing chlorophyll levels for the entire area of influence}
 
 \item{data.variable}{character string corresponding to the relevant data subset within the .nc file (defaults to "chlorophyll")}
+
+\item{lat.varname}{if automatic searching doesn't work, specify a particular variable name here}
+
+\item{lon.varname}{if automatic searching doesn't work, specify a particular variable name here}
+
+\item{timeseries}{manually extracted timeseries data as "Date" class, to override automatic extraction from file}
+
+\item{time.varname}{if automatic searching doesn't work, specify a particular variable name here}
+
+\item{depth.varname}{name of depth variable in .nc file, auto matching used if NULL}
+
+\item{depth.dimension}{if a depth dimension is present, specify which dimension it is. auto-matching used if NULL}
+
+\item{depth.touse}{if a depth dimension is present, specify which value to use. default NULL will use minimum available depth}
 }
 \value{
 A data.table, containing variables for date and chlorophyll level
