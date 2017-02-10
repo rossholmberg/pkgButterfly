@@ -178,9 +178,42 @@ We can now plot the results:
 library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = as.Date( date ), y = mean.chlorophyll ) ) +
     geom_point() +
-    geom_smooth( method = "loess", span = 0.2 )
+    geom_smooth( method = "loess", span = 0.2 ) +
+    ggtitle( "Mean Chlorophyll concentration, based on local dynamic Butterfly" )
 ```
 
 ![](READMEfigs/plotChlorophyll-1.png)
 
 The above shows interpolated chlorophyll level over time, for the specified area of interest (a radius of `foraging.distance` km around `POI`).
+
+Note that what we've done so far is to compute a "Butterfly" area, then apply that area to interpolate available Chlorophyll data in the most meaningful way. If we so wish, we can apply the butterfly area to variables other than Chlorophyll. For example, the file referenced here contains data for "primary production" as well:
+
+``` r
+dates.PP <- plyr::ldply( .data = chl.file,
+                         .fun = chlorophyllCalc,
+                         data.variable = "PP",
+                         depth.dimension = NULL,
+                         depth.touse = NULL,
+                         timeseries = times,
+                         conductance.data = conductance.table,
+                         max.day.diff = 30,
+                         .parallel = FALSE ) %>%
+    setDT() %>%
+    # for duplicates (useful in cases where more than one file has been analysed) take an average
+    .[ , mean( mean.chlorophyll ), by = date ] %>%
+    # sort by date
+    setorder( date ) %>%
+    # make sure the column names are appropriate
+    setnames( c( "date", "mean.pp" ) )
+gc() # collect garbage to clear RAM
+```
+
+``` r
+library( ggplot2 )
+ggplot( data = dates.PP, mapping = aes( x = as.Date( date ), y = mean.pp ) ) +
+    geom_point() +
+    geom_smooth( method = "loess", span = 0.2 ) +
+    ggtitle( "Mean Primary Production, based on local dynamic Butterfly" )
+```
+
+![](READMEfigs/plotPrimaryProduction-1.png)
