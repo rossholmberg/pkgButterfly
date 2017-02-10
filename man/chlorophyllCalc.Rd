@@ -4,19 +4,35 @@
 \alias{chlorophyllCalc}
 \title{chlorophyllCalc Use the relevant local area of influence (calculated using the butterfly algorithm) to find chlorophyll levels over time}
 \usage{
-chlorophyllCalc(input.file, data.variable = "chlorophyll", conductance.data,
-  max.day.diff = 31, exclude.nas = TRUE)
+chlorophyllCalc(input.file, data.variable = "chl", lat.varname = NULL,
+  lon.varname = NULL, timeseries = NULL, time.varname = NULL,
+  conductance.data, max.day.diff = 10, exclude.nas = TRUE,
+  depth.varname = NULL, depth.dimension = NULL, depth.touse = NULL)
 }
 \arguments{
 \item{input.file}{.nc file containing chlorophyll levels for the entire area of influence}
 
 \item{data.variable}{character string corresponding to the relevant data subset within the .nc file (defaults to "chlorophyll")}
 
+\item{lat.varname}{name of latitude variable, automatic searching is used if NULL}
+
+\item{lon.varname}{name of longitude variable, automatic searching is used if NULL}
+
+\item{timeseries}{manually extracted timeseries data as "Date" class, to override automatic extraction from file}
+
+\item{time.varname}{name of time variable, automatic searching is used if NULL}
+
 \item{conductance.data}{input for calculation}
 
 \item{max.day.diff}{integer, number of days to allow as a difference between a conductance array}
 
 \item{exclude.nas}{should NA values be excluded?}
+
+\item{depth.varname}{name of depth variable in .nc file, auto matching used if NULL}
+
+\item{depth.dimension}{if a depth dimension is present, specify which dimension it is. auto-matching used if NULL}
+
+\item{depth.touse}{if a depth dimension is present, specify which value to use. default NULL will use minimum available depth}
 }
 \value{
 A data.table, containing variables for date and chlorophyll level
