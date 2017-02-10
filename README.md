@@ -30,13 +30,13 @@ central.foraging.area <- c( 145.014879, -38.752039 )
 A file containing currents data needs to be input to the calculations. This data will be used to calculate an "area of influence" (a.k.a "butterfly", due to a shape of which this area may take the form).
 
 ``` r
-currents.file <- "/media/pinp/Storage/dataset-armor-3d-v4-cmems-v2_1486508039772.nc"
+currents.file <- paste0( data.input.folder, "/dataset-armor-3d-v4-cmems-v2_1486508039772.nc" )
 ```
 
 A folder to be used to temporarily store data created during processing.
 
 ``` r
-output.folder <- "C:/Users/rholmberg/Desktop/Rtemp/"
+temp.output.folder <- paste0( data.output.folder, "/Rtemp/" )
 ```
 
 If variable names are logical within the .nc file, `costCalcMaster` will find them automatically. If any are strangely names, we may need to specify them in the function call. To get a list of variable names within the file, we can run:
@@ -52,7 +52,7 @@ Note the names in this file are fairly logical. We have "lat", "lon", "ZonalCurr
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 
 ``` r
-conductance.table <- costCalcMaster( output.folder = output.folder,
+conductance.table <- costCalcMaster( output.folder = temp.output.folder,
                                      # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
@@ -108,9 +108,10 @@ library( magrittr )
 library( data.table )
 library( plyr )
 
-input.folder <- "~/git/butterfly R script/"
-chl.files <- c( paste0( input.folder, "erdSWchla8day_5e25_bcf8_7643.nc" ),
-                paste0( input.folder, "erdMH1chla8day_4d10_c7b5_5ad5.nc" ) )
+chl.files <- paste0( data.input.folder,
+                     c( "/erdSWchla8day_5e25_bcf8_7643.nc",
+                        "/erdMH1chla8day_4d10_c7b5_5ad5.nc" )
+)
 ```
 
 Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).

@@ -9,12 +9,15 @@ output:
 
 <!-- Do not edit README.md directly, edit README.Rmd instead and re-knit before commit -->
 
-```{r, echo = FALSE}
+```{r setup, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "READMEfigs/"
 )
+package.root <- "~/git/pkgButterfly"
+data.input.folder <- paste0( package.root, "/nogit/data_input" )
+data.output.folder <- paste0( package.root, "/nogit/data_output" )
 ```
 
 # pkgButterfly
@@ -36,20 +39,20 @@ library( pkgButterfly )
 The parameters to the `costCalcMaster` function are as follows.
 
 Central point from which foraging occurs (note areas of land will not be taken into account, so a coastline point is suitable here)
-```{r set params 1, eval=FALSE}
+```{r set params 1, eval=TRUE}
 colony <- c( 145.2, -38.8 )
 central.foraging.area <- c( 145.014879, -38.752039 )
 ```
 
 A file containing currents data needs to be input to the calculations. This data will be used to calculate an "area of influence" (a.k.a "butterfly", due to a shape of which this area may take the form).
 ```{r set params 2, eval=TRUE}
-currents.file <- "/media/pinp/Storage/dataset-armor-3d-v4-cmems-v2_1486508039772.nc"
+currents.file <- paste0( data.input.folder, "/dataset-armor-3d-v4-cmems-v2_1486508039772.nc" )
 ```
 
 
 A folder to be used to temporarily store data created during processing.
-```{r set params 3, eval=FALSE}
-output.folder <- "C:/Users/rholmberg/Desktop/Rtemp/"
+```{r set params 3, eval=TRUE}
+temp.output.folder <- paste0( data.output.folder, "/Rtemp/" )
 ```
 
 If variable names are logical within the .nc file, `costCalcMaster` will find them automatically. If any are strangely names, we may need to specify them in the function call. To get a list of variable names within the file, we can run:
@@ -61,7 +64,7 @@ Note the names in this file are fairly logical. We have "lat", "lon", "ZonalCurr
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 ```{r run costCalcMaster, eval=FALSE}
-conductance.table <- costCalcMaster( output.folder = output.folder,
+conductance.table <- costCalcMaster( output.folder = temp.output.folder,
                                      # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
@@ -78,10 +81,10 @@ conductance.table <- costCalcMaster( output.folder = output.folder,
 gc() # collect garbage to clear RAM
 ```
 ```{r, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE, eval=FALSE}
-saveRDS( conductance.table, "~/Desktop/condtable.rds" )
+saveRDS( conductance.table, paste0( data.output.folder, "/condtable.rds" ) )
 ```
 ```{r, message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
-conductance.table <- readRDS( "~/Desktop/condtable.rds" )
+conductance.table <- readRDS( paste0( data.output.folder, "/condtable.rds" ) )
 ```
 
 In some cases, the "dates" values, which now reside in the column names of `conductance.table`, are not in a logical format. It may be a good idea to change these accordingly. Here we use the `ncdf4` package, and discover that the time values are formatted as "hours since 1950-01-01":
@@ -115,9 +118,10 @@ library( magrittr )
 library( data.table )
 library( plyr )
 
-input.folder <- "~/git/butterfly R script/"
-chl.files <- c( paste0( input.folder, "erdSWchla8day_5e25_bcf8_7643.nc" ),
-                paste0( input.folder, "erdMH1chla8day_4d10_c7b5_5ad5.nc" ) )
+chl.files <- paste0( data.input.folder,
+                     c( "/erdSWchla8day_5e25_bcf8_7643.nc",
+                        "/erdMH1chla8day_4d10_c7b5_5ad5.nc" )
+)
 ```
 
 Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
@@ -138,14 +142,14 @@ dates.chlorophyll <- plyr::ldply( .data = chl.files,
 gc() # collect garbage to clear RAM
 ```
 ```{r, include=FALSE, echo=FALSE, eval=FALSE}
-saveRDS( dates.chlorophyll, "~/Desktop/dateschl.rds" )
+saveRDS( dates.chlorophyll, paste0( data.output.folder, "/dateschl.rds" ) )
 ```
 ```{r, include=FALSE, echo=FALSE}
-dates.chlorophyll <- readRDS( "~/Desktop/dateschl.rds" )
+dates.chlorophyll <- readRDS( paste0( data.output.folder, "/dateschl.rds" ) )
 ```
 
 What we're left with is a data frame displaying dates and chlorophyll values.
-```{r, eval=TRUE}
+```{r, echo=TRUE}
 head( dates.chlorophyll )
 ```
 
