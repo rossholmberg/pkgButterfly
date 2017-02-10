@@ -108,23 +108,49 @@ library( magrittr )
 library( data.table )
 library( plyr )
 
-chl.files <- paste0( data.input.folder,
-                     c( "/erdSWchla8day_5e25_bcf8_7643.nc",
-                        "/erdMH1chla8day_4d10_c7b5_5ad5.nc" )
-)
+chl.file <- paste0( data.input.folder, "/dataset-global-analysis-forecast-bio-001-014_1486686773262.nc" )
+```
+
+The functions here will *attempt* to find logical ways in which data has been stored within the given .nc file. However, since there doesn't seem to be standard for how to store data in .nc files (we should standardise this!), we may need to extract certain things from the file manually. In this case, we'll extract the timeseries data maually, convert it to a logical date format, then pass that to the next function `chlorophyllCalc` to override any automated extraction of that.
+
+``` r
+variables.available <- nc_variableNames( chl.file )
+time.variable.name <- variables.available[ grep( "time|date", variables.available ) ]
+library( ncdf4 )
+nc <- nc_open( chl.file )
+times <- ncvar_get( nc, time.variable.name )
+nc_close( nc )
+head( times )
+#> [1] 543468 543636 543804 543972 544140 544308
+```
+
+Note that in this case, as with the previous on (both of these files came from the same data source, the European Union's "Copernicus" repository), we need to convert the times from a numeric "hourse since 1950-01-01 00:00:00":
+
+``` r
+library( magrittr )
+times %<>%
+    as.numeric() %>%
+    divide_by( 24 ) %>%
+    as.Date( origin = "1950-01-01" )
+head( times )
+#> [1] "2011-12-31" "2012-01-07" "2012-01-14" "2012-01-21" "2012-01-28"
+#> [6] "2012-02-04"
 ```
 
 Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
 
 ``` r
-dates.chlorophyll <- plyr::ldply( .data = chl.files,
+dates.chlorophyll <- plyr::ldply( .data = chl.file,
                                   .fun = chlorophyllCalc,
-                                  data.variable = "chlorophyll",
+                                  data.variable = "chl",
+                                  depth.dimension = NULL,
+                                  depth.touse = NULL,
+                                  timeseries = times,
                                   conductance.data = conductance.table,
-                                  max.day.diff = 10,
+                                  max.day.diff = 30,
                                   .parallel = FALSE ) %>%
   setDT() %>%
-  # for duplicates (since we analysed two files) take an average
+  # for duplicates (useful in cases where more than one file has been analysed) take an average
   .[ , mean( mean.chlorophyll ), by = date ] %>%
   # sort by date
   setorder( date ) %>%
@@ -138,21 +164,21 @@ What we're left with is a data frame displaying dates and chlorophyll values.
 ``` r
 head( dates.chlorophyll )
 #>          date mean.chlorophyll
-#> 1: 2013-12-23        0.4388904
-#> 2: 2013-12-29        0.3825137
-#> 3: 2014-01-05        0.3940464
-#> 4: 2014-01-13        0.4319269
-#> 5: 2014-01-21        0.4566485
-#> 6: 2014-01-29        0.5189684
+#> 1: 2013-12-07        0.4638718
+#> 2: 2013-12-14        0.4022076
+#> 3: 2013-12-22        0.3491838
+#> 4: 2013-12-28        0.3184212
+#> 5: 2014-01-04        0.4334572
+#> 6: 2014-01-11        0.3483841
 ```
 
 We can now plot the results:
 
 ``` r
 library( ggplot2 )
-ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
+ggplot( data = dates.chlorophyll, mapping = aes( x = as.Date( date ), y = mean.chlorophyll ) ) +
     geom_point() +
-    geom_smooth( method = "loess", span = 0.1 )
+    geom_smooth( method = "loess", span = 0.2 )
 ```
 
 ![](READMEfigs/plotChlorophyll-1.png)

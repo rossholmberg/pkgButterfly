@@ -1,7 +1,7 @@
 ---
 title: "pkgButterfly"
 author: "Ross Holmberg"
-date: "24 January 2017"
+date: "10 February 2017"
 output:
   md_document:
     variant: markdown_github
@@ -113,27 +113,48 @@ pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table )
 
 
 We can pass a single file to the `chlorophyllCalc` function at a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 library( magrittr )
 library( data.table )
 library( plyr )
 
-chl.files <- paste0( data.input.folder,
-                     c( "/erdSWchla8day_5e25_bcf8_7643.nc",
-                        "/erdMH1chla8day_4d10_c7b5_5ad5.nc" )
-)
+chl.file <- paste0( data.input.folder, "/dataset-global-analysis-forecast-bio-001-014_1486686773262.nc" )
+```
+
+The functions here will *attempt* to find logical ways in which data has been stored within the given .nc file. However, since there doesn't seem to be standard for how to store data in .nc files (we should standardise this!), we may need to extract certain things from the file manually. In this case, we'll extract the timeseries data maually, convert it to a logical date format, then pass that to the next function `chlorophyllCalc` to override any automated extraction of that.
+```{r}
+variables.available <- nc_variableNames( chl.file )
+time.variable.name <- variables.available[ grep( "time|date", variables.available ) ]
+library( ncdf4 )
+nc <- nc_open( chl.file )
+times <- ncvar_get( nc, time.variable.name )
+nc_close( nc )
+head( times )
+```
+
+Note that in this case, as with the previous on (both of these files came from the same data source, the European Union's "Copernicus" repository), we need to convert the times from a numeric "hourse since 1950-01-01 00:00:00":
+```{r}
+library( magrittr )
+times %<>%
+    as.numeric() %>%
+    divide_by( 24 ) %>%
+    as.Date( origin = "1950-01-01" )
+head( times )
 ```
 
 Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
 ```{r process chlorophyll, eval=FALSE}
-dates.chlorophyll <- plyr::ldply( .data = chl.files,
+dates.chlorophyll <- plyr::ldply( .data = chl.file,
                                   .fun = chlorophyllCalc,
-                                  data.variable = "chlorophyll",
+                                  data.variable = "chl",
+                                  depth.dimension = NULL,
+                                  depth.touse = NULL,
+                                  timeseries = times,
                                   conductance.data = conductance.table,
-                                  max.day.diff = 10,
+                                  max.day.diff = 30,
                                   .parallel = FALSE ) %>%
   setDT() %>%
-  # for duplicates (since we analysed two files) take an average
+  # for duplicates (useful in cases where more than one file has been analysed) take an average
   .[ , mean( mean.chlorophyll ), by = date ] %>%
   # sort by date
   setorder( date ) %>%
@@ -156,9 +177,9 @@ head( dates.chlorophyll )
 We can now plot the results:
 ```{r plotChlorophyll, eval=TRUE}
 library( ggplot2 )
-ggplot( data = dates.chlorophyll, mapping = aes( x = date, y = mean.chlorophyll ) ) +
+ggplot( data = dates.chlorophyll, mapping = aes( x = as.Date( date ), y = mean.chlorophyll ) ) +
     geom_point() +
-    geom_smooth( method = "loess", span = 0.1 )
+    geom_smooth( method = "loess", span = 0.2 )
 ```
 
 
