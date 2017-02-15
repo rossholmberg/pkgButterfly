@@ -29,9 +29,12 @@ Install `pkgButterfly` from github if not installed yet.
 devtools::install_github( "rossholmberg/pkgButterfly" )
 ```
 
-Load the package.
-```{r load}
+Load the package as well as a few other packages we'll use in this process.
+```{r load, message=FALSE}
 library( pkgButterfly )
+library( magrittr )
+library( data.table )
+library( plyr )
 ```
 
 ### Chlorophyll analysis
@@ -60,16 +63,36 @@ If variable names are logical within the .nc file, `costCalcMaster` will find th
 nc_variableNames( currents.file )
 ```
 
-Note the names in this file are fairly logical. We have "lat", "lon", "ZonalCurrent", and "MeridionalCurrent". There is also a "depth" variable here, meaning there may be more than one depth value available. We will only analyse one depth value (multiple values can be analysed by calling `costCalcMaster` within, for example, `lapply` or similar). If more than one depth value is available, it will be necessary to specify which depth to use in the analysis.
+Note the names in this file are fairly logical. We have "lat", "lon", "ZonalCurrent", and "MeridionalCurrent". There is also a "depth" variable here, meaning there may be more than one depth value available. We will only analyse one depth value (multiple values can be analysed by calling `costCalcMaster` within, for example, `lapply` or similar). If more than one depth value is available, it will be necessary to specify which depth to use in the analysis, and which dimension in the currents data represents that depth dimension. We can look at the depths available in the file:
+```{r}
+input.data <- ncdf4::nc_open( currents.file )
+depths <- ncdf4::ncvar_get( input.data, varid = "depth" )
+depths
+```
+
+And we can look at the dimensions of the currents data:
+```{r}
+currents.dim <- dim( ncdf4::ncvar_get( input.data, varid = "zvelocity" ) )
+# we can now close the file
+ncdf4::nc_close( input.data )
+currents.dim
+```
+
+Notice that there is only one dimension in that data array matching the length of the depths vector. That dimension (here "3") is what the creators of this `.nc` file have deemed the "depth" dimension. Our next call will need this value. Note that in a case like this, where only one dimension matches the size of the depth vector, we can obtain the apropriate value programmatically like so (where there is more than one match, the user will need to input specifically which one represents depths):
+```{r}
+depth.dimension <- which( currents.dim == length( depths ) )
+depth.dimension
+```
+
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
 ```{r run costCalcMaster, eval=FALSE}
 conductance.table <- costCalcMaster( output.folder = temp.output.folder,
-                                     # dates.range = as.Date( c( "2012-01-01", "2012-08-30" ) ), # uncomment to limit dataset
+                                     # dates.range = as.Date( c( "2015-01-01", "2015-08-30" ) ), # uncomment to limit dataset
                                      buffer.days = 10L,
                                      currents.file = currents.file,
                                      depth.touse = 0,
-                                     depth.dimension = 3,
+                                     depth.dimension = depth.dimension,
                                      POI = central.foraging.area,
                                      foraging.distance = 50,
                                      cell.size = 0.1,
@@ -87,52 +110,87 @@ saveRDS( conductance.table, paste0( data.output.folder, "/condtable.rds" ) )
 conductance.table <- readRDS( paste0( data.output.folder, "/condtable.rds" ) )
 ```
 
-In some cases, the "dates" values, which now reside in the column names of `conductance.table`, are not in a logical format. It may be a good idea to change these accordingly. Here we use the `ncdf4` package, and discover that the time values are formatted as "hours since 1950-01-01":
+In some cases, the "dates" values, which now reside in the column names of `conductance.table`, are not in a logical format. It may be a good idea to change these accordingly. Here we use the `ncdf4` package to read in what the creators of this file designated for its time format.
 ```{r}
-aa <- ncdf4::nc_open( currents.file )
-names( aa )
-aa$dim$time$units
-ncdf4::nc_close( aa )
+# get all of the element names (this will include every data value as well)
+ncfile <- ncdf4::nc_open( currents.file )
+allnames <- names( unlist( ncfile ) )
+
+# remove those names ending with a number
+# (these are generally repeated names, meaning they represent data itself, rather than a name)
+names <- allnames[ !grepl( "[0-9]$", allnames ) ]
+
+# keep only names beginning with "dim". This *should* represent the dimension values,
+# meaning it's the place to look for information about the dimensions of the data
+names[ grepl( "^dim", names ) ]
 ```
 
-We can use that to replace the current column names to useful date values. Note we're only changing the values for columns starting from 3, since the first 2 columns are "lat" and "lon"
+Note that the above represents every available element of the dataset, with nesting levels separated by ".". Note the values beginning with "dim.time" here represent the timeseries data (this may sometimes be named "date", "timestamp", etc. depending on the decisions of the file's creators).
+
+Looking through the names above, it looks like "dim.time.units" is probably what we're looking for. We can look at that element by replacing the "." characters with "$" in an R call, to specify nested list elements:
+
+```{r}
+ncfile$dim$time$units
+ncdf4::nc_close( ncfile )
+```
+
+Now we see what the `.nc` file's creators decided as the most appropriate formatting structure for timeseries values. In this case they have represented those values as numeric, specifying the number of "hours since 1950-01-01".
+
+We can use that information to replace the current column names to useful date values. Note we're only changing the values for columns starting from 3, since the first 2 columns are "lat" and "lon"
 ```{r}
 library( magrittr )
 names( conductance.table )[ 3:ncol( conductance.table ) ] %<>%
-    as.numeric() %>%
-    divide_by( 24 ) %>%
-    as.Date( origin = "1950-01-01" ) %>%
-    as.character()
+    as.numeric() %>% # make sure they're numeric
+    divide_by( 24 ) %>% # convert hours to days
+    as.Date( origin = "1950-01-01" ) %>% # convert to date, specifying origin
+    as.character() # convert to character for use as column names
 ```
 
+So now the column names in our main dataset should be in a logical date format.
+```{r}
+head( names( conductance.table ), 6 )
+```
 
-Have a look at one of the points in the butterfly over time.
+We can also look at the conductance data itseld. The best way to do this is visually as a spatial plot. Here, we look at a single point in the butterfly over time.
 ```{r plotButterfly, eval=TRUE}
 pkgButterfly::plotButterfly( conductance.table, round( ncol( conductance.table ) - 2L ) * 0.5 )
 ```
 
 
-We can pass a single file to the `chlorophyllCalc` function at a time, but here we'll demonstrate passing 2 files, each of which will be used against the conductance table we've just produced.
+We will specify only one Chlorophyll data file for processing here. It may be worthwhile at times to pass multiple Chlorophyll files for processing against a given conductance dataset, which can be achieved using a looping call such as `plyr::ldply`. Below we will use `plyr::ldply` simply to allow for this possibility should it be needed.
 ```{r, eval=TRUE}
-library( magrittr )
-library( data.table )
-library( plyr )
-
 chl.file <- paste0( data.input.folder, "/dataset-global-analysis-forecast-bio-001-014_1486686773262.nc" )
 ```
 
-The functions here will *attempt* to find logical ways in which data has been stored within the given .nc file. However, since there doesn't seem to be standard for how to store data in .nc files (we should standardise this!), we may need to extract certain things from the file manually. In this case, we'll extract the timeseries data maually, convert it to a logical date format, then pass that to the next function `chlorophyllCalc` to override any automated extraction of that.
+The `pkgButterfly` functions will *attempt* to find logical ways in which data has been stored within the given .nc file. However, since there doesn't seem to be standard for how to store data in .nc files (we should standardise this!), we may need to extract certain things from the file manually. In this case, we'll extract the timeseries data maually, convert it to a logical date format, then pass that to the next function `chlorophyllCalc` to override any automated extraction of that.
 ```{r}
 variables.available <- nc_variableNames( chl.file )
-time.variable.name <- variables.available[ grep( "time|date", variables.available ) ]
-library( ncdf4 )
-nc <- nc_open( chl.file )
-times <- ncvar_get( nc, time.variable.name )
-nc_close( nc )
+variables.available
+```
+
+This time, the timeseries data has been named "time_counter"
+```{r}
+nc <- ncdf4::nc_open( chl.file )
+times <- ncdf4::ncvar_get( nc, "time_counter" )
+ncdf4::nc_close( nc )
 head( times )
 ```
 
-Note that in this case, as with the previous on (both of these files came from the same data source, the European Union's "Copernicus" repository), we need to convert the times from a numeric "hourse since 1950-01-01 00:00:00":
+Note again that the timeseries is not in a logical date format, so we must again look into the file to see how they formatted this (this time without the comments, look at the previous similar process for details on each step here).
+```{r}
+ncfile <- ncdf4::nc_open( chl.file )
+allnames <- names( unlist( ncfile ) )
+names <- allnames[ !grepl( "[0-9]$", allnames ) ]
+names[ grepl( "^dim", names ) ]
+```
+
+Seeing "dim.time_counter.units", we can now find the date syntax used in this file.
+```{r}
+ncfile$dim$time_counter$units
+```
+
+
+Note that as with the currents file (both of these files came from the same data source, the European Union's "Copernicus" repository), we need to convert the times from a numeric "hourse since 1950-01-01 00:00:00":
 ```{r}
 library( magrittr )
 times %<>%
@@ -142,7 +200,9 @@ times %<>%
 head( times )
 ```
 
-Then process that list of files to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
+Then process the chlorophyll file to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
+
+Note that in the following call we use `depth.dimension = NULL` (let the function attempt to automatically find which dimension represents the depth variable) and `depth.touse = NULL` (use, by default, the shallowest depth value available).
 ```{r process chlorophyll, eval=FALSE}
 dates.chlorophyll <- plyr::ldply( .data = chl.file,
                                   .fun = chlorophyllCalc,
@@ -188,7 +248,9 @@ The above shows interpolated chlorophyll level over time, for the specified area
 
 #### Analysis of other variables ####
 
-Note that what we've done so far is to compute a "Butterfly" area, then apply that area to interpolate available Chlorophyll data in the most meaningful way. If we so wish, we can apply the butterfly area to variables other than Chlorophyll. For example, the file referenced here contains data for "net_primary_productivity_of_carbon" as well:
+Note that what we've done so far is to compute a "Butterfly" area, then apply that area to interpolate available Chlorophyll data in the most meaningful way. This is what `pkButterfly` was designed to do, being based on the research of Afan et.al on Chlorophyll specifically.
+
+If we so wish however, we can apply the butterfly area to variables other than Chlorophyll. For example, the file referenced here contains data for "net_primary_productivity_of_carbon" as well:
 ```{r process PP, eval=FALSE}
 dates.PP <- plyr::ldply( .data = chl.file,
                          .fun = chlorophyllCalc,
