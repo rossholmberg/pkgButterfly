@@ -300,6 +300,7 @@ Seeing "dim.time\_counter.units", we can now find the date syntax used in this f
 ``` r
 ncfile$dim$time_counter$units
 #> [1] "hours since 1950-01-01 00:00:00"
+ncdf4::nc_close( ncfile )
 ```
 
 Note that as with the currents file (both of these files came from the same data source, the European Union's "Copernicus" repository), we need to convert the times from a numeric "hourse since 1950-01-01 00:00:00":
@@ -359,7 +360,8 @@ library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = as.Date( date ), y = mean.chlorophyll ) ) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.2 ) +
-    ggtitle( "Mean Chlorophyll concentration, based on local dynamic Butterfly" )
+    ggtitle( "Mean Chlorophyll concentration, based on local dynamic Butterfly" ) +
+    xlab( "Date" ) + ylab( "Chlorophyll concentration (mg/m^3)" )
 ```
 
 ![](READMEfigs/plotChlorophyll-1.png)
@@ -395,7 +397,8 @@ library( ggplot2 )
 ggplot( data = dates.PP, mapping = aes( x = as.Date( date ), y = mean.pp ) ) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.2 ) +
-    ggtitle( "Mean Primary Production, based on local dynamic Butterfly" )
+    ggtitle( "Mean Primary Production, based on local dynamic Butterfly" ) +
+    xlab( "Date" ) + ylab( "net Primary production of Carbon (g/m^3/day)" )
 ```
 
 ![](READMEfigs/plotPrimaryProduction-1.png)
@@ -425,7 +428,8 @@ library( ggplot2 )
 ggplot( data = dates.Phyto, mapping = aes( x = as.Date( date ), y = mean.phyto ) ) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.2 ) +
-    ggtitle( "Mean Phytoplankton, based on local dynamic Butterfly" )
+    ggtitle( "Mean Phytoplankton, based on local dynamic Butterfly" ) +
+    xlab( "Date" ) + ylab( "Phytoplankton concentration (mmol/m^3)" )
 ```
 
 ![](READMEfigs/plotPhytoplankton-1.png)

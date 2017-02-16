@@ -191,6 +191,7 @@ names[ grepl( "^dim", names ) ]
 Seeing "dim.time_counter.units", we can now find the date syntax used in this file.
 ```{r}
 ncfile$dim$time_counter$units
+ncdf4::nc_close( ncfile )
 ```
 
 
@@ -244,7 +245,8 @@ library( ggplot2 )
 ggplot( data = dates.chlorophyll, mapping = aes( x = as.Date( date ), y = mean.chlorophyll ) ) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.2 ) +
-    ggtitle( "Mean Chlorophyll concentration, based on local dynamic Butterfly" )
+    ggtitle( "Mean Chlorophyll concentration, based on local dynamic Butterfly" ) +
+    xlab( "Date" ) + ylab( "Chlorophyll concentration (mg/m^3)" )
 ```
 
 
@@ -284,7 +286,8 @@ library( ggplot2 )
 ggplot( data = dates.PP, mapping = aes( x = as.Date( date ), y = mean.pp ) ) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.2 ) +
-    ggtitle( "Mean Primary Production, based on local dynamic Butterfly" )
+    ggtitle( "Mean Primary Production, based on local dynamic Butterfly" ) +
+    xlab( "Date" ) + ylab( "net Primary production of Carbon (g/m^3/day)" )
 ```
 
 Likewise, we have included in this file the data for "mole_concentration_of_phytoplankton_expressed_as_carbon_in_sea_water":
@@ -317,7 +320,8 @@ library( ggplot2 )
 ggplot( data = dates.Phyto, mapping = aes( x = as.Date( date ), y = mean.phyto ) ) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.2 ) +
-    ggtitle( "Mean Phytoplankton, based on local dynamic Butterfly" )
+    ggtitle( "Mean Phytoplankton, based on local dynamic Butterfly" ) +
+    xlab( "Date" ) + ylab( "Phytoplankton concentration (mmol/m^3)" )
 ```
 
 
