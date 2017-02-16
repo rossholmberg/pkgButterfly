@@ -58,6 +58,12 @@ A folder to be used to temporarily store data created during processing.
 temp.output.folder <- paste0( data.output.folder, "/Rtemp/" )
 ```
 
+We should also decide on how much leeway to give when matching dates. It is often necessary to find a nearest date match, when no exact match is available. In those cases, how much leeway do we want to allow before giving up (and returning `NA`)?
+```{r}
+buffer.days <- 30
+```
+
+
 If variable names are logical within the .nc file, `costCalcMaster` will find them automatically. If any are strangely names, we may need to specify them in the function call. To get a list of variable names within the file, we can run:
 ```{r}
 nc_variableNames( currents.file )
@@ -86,10 +92,10 @@ depth.dimension
 
 
 Run the main "butterfly" analysis. This can be a very long process. Expect this step to take 10-90mins, depending on the size of the dataset, and the parameters set on input (particularly `dates.range` and `cell.size`).
-```{r run costCalcMaster, eval=FALSE}
+```{r run costCalcMaster, eval=FALSE, message=FALSE}
 conductance.table <- costCalcMaster( output.folder = temp.output.folder,
                                      # dates.range = as.Date( c( "2015-01-01", "2015-08-30" ) ), # uncomment to limit dataset
-                                     buffer.days = 10L,
+                                     buffer.days = buffer.days,
                                      currents.file = currents.file,
                                      depth.touse = 0,
                                      depth.dimension = depth.dimension,
@@ -170,15 +176,13 @@ variables.available
 
 This time, the timeseries data has been named "time_counter"
 ```{r}
-nc <- ncdf4::nc_open( chl.file )
-times <- ncdf4::ncvar_get( nc, "time_counter" )
-ncdf4::nc_close( nc )
+ncfile <- ncdf4::nc_open( chl.file )
+times <- ncdf4::ncvar_get( ncfile, "time_counter" )
 head( times )
 ```
 
 Note again that the timeseries is not in a logical date format, so we must again look into the file to see how they formatted this (this time without the comments, look at the previous similar process for details on each step here).
 ```{r}
-ncfile <- ncdf4::nc_open( chl.file )
 allnames <- names( unlist( ncfile ) )
 names <- allnames[ !grepl( "[0-9]$", allnames ) ]
 names[ grepl( "^dim", names ) ]
@@ -202,7 +206,7 @@ head( times )
 
 Then process the chlorophyll file to achieve an output chlorophyll measurement for each available date. Note that each dated chlorophyll matrix must have conductance data against which to apply the algorithm. We can specify a buffer time as `max.day.diff` which will allow some leeway here, such that slight mismatches in conductance data and chlorophyll data can be tolerated (either a single match, or extrapolated data between nearest before and after data points will be used).
 
-Note that in the following call we use `depth.dimension = NULL` (let the function attempt to automatically find which dimension represents the depth variable) and `depth.touse = NULL` (use, by default, the shallowest depth value available).
+Note that in the following call we use `depth.dimension = NULL` (let the function attempt to automatically find which dimension represents the depth variable) and `depth.touse = NULL` (use, by default, the shallowest depth value available). Each of these values can be left out of the following call, since `NULL` is the default for both; they are shown here only to highlight them for your awareness.
 ```{r process chlorophyll, eval=FALSE}
 dates.chlorophyll <- plyr::ldply( .data = chl.file,
                                   .fun = chlorophyllCalc,
@@ -211,7 +215,7 @@ dates.chlorophyll <- plyr::ldply( .data = chl.file,
                                   depth.touse = NULL,
                                   timeseries = times,
                                   conductance.data = conductance.table,
-                                  max.day.diff = 30,
+                                  max.day.diff = buffer.days,
                                   .parallel = FALSE ) %>%
   setDT() %>%
   # for duplicates (useful in cases where more than one file has been analysed) take an average
@@ -255,11 +259,9 @@ If we so wish however, we can apply the butterfly area to variables other than C
 dates.PP <- plyr::ldply( .data = chl.file,
                          .fun = chlorophyllCalc,
                          data.variable = "PP",
-                         depth.dimension = NULL,
-                         depth.touse = NULL,
                          timeseries = times,
                          conductance.data = conductance.table,
-                         max.day.diff = 30,
+                         max.day.diff = buffer.days,
                          .parallel = FALSE ) %>%
     setDT() %>%
     # for duplicates (useful in cases where more than one file has been analysed) take an average
@@ -286,15 +288,13 @@ ggplot( data = dates.PP, mapping = aes( x = as.Date( date ), y = mean.pp ) ) +
 ```
 
 Likewise, we have included in this file the data for "mole_concentration_of_phytoplankton_expressed_as_carbon_in_sea_water":
-```{r process Phyto, eval=FALSE}
+```{r process Phyto, eval=FALSE, message=FALSE}
 dates.Phyto <- plyr::ldply( .data = chl.file,
                          .fun = chlorophyllCalc,
                          data.variable = "PHYC",
-                         depth.dimension = NULL,
-                         depth.touse = NULL,
                          timeseries = times,
                          conductance.data = conductance.table,
-                         max.day.diff = 30,
+                         max.day.diff = buffer.days,
                          .parallel = FALSE ) %>%
     setDT() %>%
     # for duplicates (useful in cases where more than one file has been analysed) take an average
