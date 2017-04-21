@@ -12,6 +12,7 @@ using namespace Rcpp;
 //' @param landmask aligned data for masking
 //'
 //' @keywords inverse distance weighted average
+//' @useDynLib pkgButterfly
 //' @export
 //'
 // [[Rcpp::export]]

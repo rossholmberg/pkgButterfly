@@ -23,4 +23,3 @@ Converting a given area range and cell size into a grid of reference points.
 }
 \keyword{GPS,}
 \keyword{spatial}
-

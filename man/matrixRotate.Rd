@@ -14,4 +14,3 @@ matrixRotate(x, angle = c(0, 90, 180, 270))
 \description{
 matrixRotate
 }
-

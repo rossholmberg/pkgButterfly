@@ -19,4 +19,3 @@ data.frame
 \description{
 landMask function to download a local map, and use it to create a mask of the local land areas
 }
-

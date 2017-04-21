@@ -24,4 +24,3 @@ Based on Afán et al. 2015
 \keyword{cost}
 \keyword{sink}
 \keyword{wind}
-

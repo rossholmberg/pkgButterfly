@@ -25,4 +25,3 @@ Take two latlon coordinates, and return the distance between them.
 }
 \keyword{gis}
 \keyword{maps}
-

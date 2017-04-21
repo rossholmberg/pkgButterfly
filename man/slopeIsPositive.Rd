@@ -15,4 +15,3 @@ boolean TRUE if slope is positive, FALSE if negative or zero
 \description{
 slopeIsPositive check whether the slope of a vector is positive
 }
-

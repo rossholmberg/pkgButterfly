@@ -32,4 +32,3 @@ processConductance convert files output from circuitscape processing into a data
 \keyword{conductance,}
 \keyword{currents}
 \keyword{ocean}
-

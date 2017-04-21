@@ -23,4 +23,3 @@ data.frame
 \description{
 df2Ascii function to convert the columns of a data frame to Ascii files, ready for further processing outside of R
 }
-

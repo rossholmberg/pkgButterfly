@@ -27,4 +27,3 @@ numeric value for mean chlorophyll
 \description{
 meanChlorophyll Calculating the relevant metric for a single time
 }
-

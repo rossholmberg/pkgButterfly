@@ -28,4 +28,3 @@ calculate data based on inverse distance weighted interpolation
 \keyword{distance}
 \keyword{inverse}
 \keyword{weighted}
-

@@ -43,4 +43,3 @@ chlorophyllCalc Use the relevant local area of influence (calculated using the b
 \keyword{chlorophyll}
 \keyword{cost}
 \keyword{currents}
-

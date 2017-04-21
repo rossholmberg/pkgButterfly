@@ -20,4 +20,3 @@ Convert current from .nc file to speed and direction values.
 \keyword{current}
 \keyword{direction}
 \keyword{speed}
-

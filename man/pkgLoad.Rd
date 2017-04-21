@@ -21,4 +21,3 @@ activate the "install.packages" function, only if the package is not already ins
 then load that package
 }
 \keyword{packages}
-

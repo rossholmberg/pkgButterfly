@@ -15,4 +15,3 @@ A function to help navigate through folders
 will create folders requested if they don't exist already
 }
 \keyword{folders}
-

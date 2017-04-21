@@ -19,4 +19,3 @@ Convert either latitude or longitude distances between angles (degrees) and dist
 }
 \keyword{gis}
 \keyword{maps}
-

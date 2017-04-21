@@ -19,4 +19,3 @@ plotButterfly View a "butterfly"
 }
 \keyword{plot}
 \keyword{view}
-

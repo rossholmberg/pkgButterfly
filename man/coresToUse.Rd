@@ -14,4 +14,3 @@ integer value of number of cores to be used
 coresToUse, a function for guessing at a good number of cores to use in parallel processing,
 base on the computer being used
 }
-

@@ -34,4 +34,3 @@ runCircuitscape a function for externally applying the circuitscape algorithms t
 }
 \keyword{ascii}
 \keyword{circuitscape,}
-

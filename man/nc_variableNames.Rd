@@ -17,4 +17,3 @@ a character vector of variable names
 nc_variableNames
 a simple function for viewing the names of the variables within a .nc file
 }
-

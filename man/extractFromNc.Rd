@@ -36,4 +36,3 @@ extractFromNc get data from a .nc file
 \keyword{file}
 \keyword{import}
 \keyword{nc}
-
