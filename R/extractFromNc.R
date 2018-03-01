@@ -145,7 +145,7 @@ extractFromNc <- function( file,
     }
 
     # put the spatial coordinates into a data table
-    output <- data.table( lat = lat, lon = lon )
+    output <- data.table( lat = as.vector(lat), lon = as.vector(lon) )
 
     # and add the data column-wise
     output[ , as.character( times ) := lapply( file.contents, as.vector ) ]
